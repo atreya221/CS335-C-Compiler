@@ -6,11 +6,14 @@ LEX = flex
 TARGET = scanner
 
 #DIRECTORIES
+
 ##Source code
 SRCDIR = src
+
 ##Compiled source files
 BUILDDIR = build
 INCDIR = inc
+
 ##Contain final executable
 TARGETDIR = bin
 
@@ -19,6 +22,7 @@ PATTERNS=$(SRCDIR)/pattern.l
 
 # FLAGS
 CFLAGS = -g -Wall
+
 ##LFLAGS
 YFLAGS = -d
 LDFLAGS = -lfl
@@ -34,8 +38,6 @@ patterns:
 	$(LEX) $(PATTERNS)
 	@mkdir -p $(BUILDDIR)
 	@mv lex.yy.c $(BUILDDIR)/.
-
-.PHONY: clean
 
 clean:
 	rm -rf $(BUILDDIR) $(TARGETDIR)
