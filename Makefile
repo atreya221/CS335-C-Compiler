@@ -16,7 +16,6 @@ TARGETDIR = bin
 
 #Define some standard files that we use
 PATTERNS=$(SRCDIR)/pattern.l
-# GRAMMAR=$(SRCDIR)/grammar.y
 
 # FLAGS
 CFLAGS = -g -Wall

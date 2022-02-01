@@ -22,12 +22,11 @@ Digit			[0-9]
 Alpha			[a-zA-Z_]
 Hexa			[a-fA-F0-9]
 Expo			[Ee][+-]?{Digit}+
-FS		    	(f|F|l|Alpha)	            
-IS		    	(u|U|l|Alpha)*              
 
 %%
 "/*"			{ commentCheck(); }
-"//"[^\n]*\n	{ line_no++;  }     
+"//"[^\n]*\n	{ line_no++;  } 
+"#"[^\n]*\n     { line_no++; }
 
 "..."			{ updateLoc(); return(ELLIPSIS); }	
 
@@ -117,14 +116,14 @@ IS		    	(u|U|l|Alpha)*
 
 {Alpha}({Alpha}|{Digit})*		{ updateLoc(); return(IDENTIFIER); }
 
-0[xX]{Hexa}+{IS}?	    { updateLoc(); return(CONSTANT); }
-0{Digit}+{IS}?		{ updateLoc(); return(CONSTANT); }			
-{Digit}+{IS}?		{ updateLoc(); return(CONSTANT); }			
-Alpha?'(\\.|[^\\'])+'	{ updateLoc(); return(CONSTANT); }		
+0[xX]{Hexa}+	    { updateLoc(); return(CONSTANT); }
+0{Digit}+		{ updateLoc(); return(CONSTANT); }			
+{Digit}+		{ updateLoc(); return(CONSTANT); }			
+'(\\.|[^\\'])+'	{ updateLoc(); return(CONSTANT); }		
 
-{Digit}+{Expo}{FS}?		{ updateLoc(); return(CONSTANT); }		
-{Digit}*"."{Digit}+({Expo})?{FS}?	{ updateLoc(); return(CONSTANT); }
-{Digit}+"."{Digit}*({Expo})?{FS}?	{ updateLoc(); return(CONSTANT); }
+{Digit}+{Expo}		{ updateLoc(); return(CONSTANT); }		
+{Digit}*"."{Digit}+({Expo})?	{ updateLoc(); return(CONSTANT); }
+{Digit}+"."{Digit}*({Expo})?	{ updateLoc(); return(CONSTANT); }
 
 \"(\\.|[^\\"])*\"	{ updateLoc(); return(STRING_LITERAL); }     
 
@@ -160,19 +159,21 @@ void updateLoc()
 	tdata.col_no = col_no;
 	tdata.line_no = line_no;
 	tdata.lexeme = strdup(yytext);
-
-    for (int i = 0; yytext[i] != '\0'; i++) {
-		if (yytext[i] == '\n'){
+    int length = strlen(yytext);
+    for(int i = 0; i < length; i++){
+        if(yytext[i] == '\n'){
+            line_no++;
             col_no = 1;
-			line_no++;
         }
-		else if (yytext[i] == '\t'){
+        else if(yytext[i] == '\t'){
             int chunk_filled = col_no % TAB_SIZE;
             col_no += TAB_SIZE - chunk_filled;
         }
-		else
-			col_no++;	
-	}
+        else{
+            col_no++;
+        }
+
+    }
 }
 
 int yywrap()
