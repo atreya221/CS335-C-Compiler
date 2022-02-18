@@ -56,11 +56,9 @@ patterns:
 
 plot:
 	$(YACC) -v $(GRAMMAR)
-	@mkdir -p $(BUILDDIR)
-	@mv y.tab.c y.output $(BUILDDIR)/.
 	python3 src/graph_generator.py
-	@mv graph.dot $(BUILDDIR)/.
-	sfdp -x -Goverlap=scale -Tsvg $(BUILDDIR)/graph.dot -o graph.svg
+	sfdp -Goverlap=scale -Tsvg graph.dot -o graph.svg
+	@rm graph.dot y.tab.c y.output
 
 clean:
-	rm -rf $(BUILDDIR) $(TARGETDIR) $(INCDIR)/y.tab.h
+	rm -rf $(BUILDDIR) $(TARGETDIR) $(INCDIR)/y.tab.h *.dot *.output y.tab.c
