@@ -24,9 +24,7 @@ To clear the binaries and compiled source :
 make clean
 ```
 
-
 # Usage Instructions
-
 
 ## Milestone - 2 (Lexer)
 
