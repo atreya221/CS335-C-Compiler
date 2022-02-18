@@ -61,4 +61,4 @@ plot:
 	@rm graph.dot y.tab.c y.output
 
 clean:
-	rm -rf $(BUILDDIR) $(TARGETDIR) $(INCDIR)/y.tab.h *.dot *.output y.tab.c
+	rm -rf $(BUILDDIR) $(TARGETDIR) *.dot *.output y.tab.c

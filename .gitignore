@@ -53,12 +53,10 @@ dkms.conf
 
 
 #Build dir
-./build
+build/
 
 #Bin dir
-./bin
-bin/scanner
-build/lex.yy.c
+bin/
 
 #vscode
 ./.vscode
