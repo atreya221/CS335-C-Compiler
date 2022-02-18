@@ -57,7 +57,7 @@ patterns:
 plot:
 	$(YACC) -v $(GRAMMAR)
 	python3 src/graph_generator.py
-	sfdp -Goverlap=scale -Tsvg graph.dot -o graph.svg
+	sfdp -v -Goverlap=scale -Tsvg graph.dot -o graph.svg
 	@rm graph.dot y.tab.c y.output
 
 clean:

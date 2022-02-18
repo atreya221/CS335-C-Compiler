@@ -68,9 +68,6 @@ for x in list_pairs:
         dot.edge(startName, endName, tooltip=hoverLabel)
 
 
-#print(list_pairs)
-
-
 file_name = "graph.dot"
 dot_file = open(file_name, 'w')
 dot_file.write(dot.source)

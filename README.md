@@ -51,7 +51,7 @@ If the parse is unsuccessful then it throws error, otherwise it doesn't give any
 
 ### `graph.svg` file
 This file contains the states and the edges in form of a graph.
-Currently edge labels are not visible. But after zooming in and hovering the mouse over the edge, the `edge label` along with the start and end state of the edge will be visible.
+Currently edge labels are not visible. But after zooming in and hovering the mouse over the edge, the `edge label` and the `label type` along with the start and end state of the edge will be visible.
 
 You can also generate graph with edge labels visible, folow the instructions below.
 ### For generating the LR Parser Automata:
@@ -77,7 +77,7 @@ A `graph.svg` file will be generated in the root folder.
 
 
 ## Test Files:
-The grammar has been designed such that the C program must contain all the declarations first and then the statements.  
+The grammar has been designed such that the C program must contain all the declarations first and then the normal statements.  
 If you does not do so, then the parser will throw error.
 ## Errors in the grammar  
 There is a shift-reduce conflict in the grammar, which is due to the dangling `else` condition.
