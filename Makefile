@@ -1,9 +1,11 @@
 # TOOLS
 CC = gcc
 LEX = flex
+YACC = bison -y
 
 #This target can keep changing based on final binary required
-TARGET = scanner
+#TARGET = scanner
+TARGET = parser
 
 #DIRECTORIES
 
@@ -19,9 +21,10 @@ TARGETDIR = bin
 
 #Define some standard files that we use
 PATTERNS=$(SRCDIR)/pattern.l
+GRAMMAR=$(SRCDIR)/grammar.y
 
 # FLAGS
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall -D_CC
 
 ##LFLAGS
 YFLAGS = -d
@@ -30,14 +33,34 @@ INCFLAGS = $(addprefix -I, $(INCDIR))
 
 all: $(TARGET)
 
-scanner: patterns
+
+#scanner: grammar patterns
+#	@mkdir -p $(TARGETDIR)
+#	$(CC) $(CFLAGS) $(LDFLAGS) $(INCFLAGS) $(BUILDDIR)/lex.yy.c $(BUILDDIR)/y.tab.c $(SRCDIR)/scanner.c -o $(TARGETDIR)/scanner  
+
+parser: grammar patterns
 	@mkdir -p $(TARGETDIR)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(INCFLAGS) $(BUILDDIR)/lex.yy.c $(SRCDIR)/scanner.c -o $(TARGETDIR)/scanner  
+	$(CC) $(CFLAGS) $(LDFLAGS) $(INCFLAGS) $(BUILDDIR)/lex.yy.c $(BUILDDIR)/y.tab.c $(SRCDIR)/parser.c -o $(TARGETDIR)/parser 
+
+
+grammar:
+	$(YACC) $(YFLAGS) $(GRAMMAR)
+	@mkdir -p $(BUILDDIR)
+	@mv y.tab.c $(BUILDDIR)/.
+	@mv y.tab.h $(INCDIR)/.
 
 patterns:
 	$(LEX) $(PATTERNS)
 	@mkdir -p $(BUILDDIR)
 	@mv lex.yy.c $(BUILDDIR)/.
 
+plot:
+	$(YACC) -v $(GRAMMAR)
+	@mkdir -p $(BUILDDIR)
+	@mv y.tab.c y.output $(BUILDDIR)/.
+	python3 src/graph_generator.py
+	@mv graph.dot $(BUILDDIR)/.
+	sfdp -x -Goverlap=scale -Tsvg $(BUILDDIR)/graph.dot -o graph.svg
+
 clean:
-	rm -rf $(BUILDDIR) $(TARGETDIR)
+	rm -rf $(BUILDDIR) $(TARGETDIR) $(INCDIR)/y.tab.h

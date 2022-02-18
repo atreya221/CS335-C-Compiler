@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "pattern.h"
+#include "y.tab.h"
 
 extern FILE *yyin;
 extern FILE *yyout;

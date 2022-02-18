@@ -1,6 +1,6 @@
 %{
 #include <stdio.h>
-#include "pattern.h"
+#include "y.tab.h"
 #include "scanner.h"
 
 #define TAB_SIZE 4
@@ -25,8 +25,8 @@ Expo			[Ee][+-]?{Digit}+
 
 %%
 "/*"			{ commentCheck(); }
-"//"[^\n]*\n	{ line_no++;  } 
-"#"[^\n]*\n     { line_no++; }
+"//"[^\n]*\n	{ line_no++;  col_no = 1; } 
+"#"[^\n]*\n     { line_no++; col_no = 1;}
 
 "..."			{ updateLoc(); return(ELLIPSIS); }	
 
@@ -180,3 +180,9 @@ int yywrap()
 {	
 	return 1;
 }
+
+
+
+/*
+    reference: https://www.lysator.liu.se/c/ANSI-C-grammar-l.html
+*/
