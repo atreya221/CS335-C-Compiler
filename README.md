@@ -57,4 +57,4 @@ There is a shift-reduce conflict in the grammer, which is due to the dangling `e
 We were not able to come-up with a fix for this conflict as of now.  
 This error emerges when there is an `else` condition which can be linked to multiple `if` conditions, and the compiler is not able to figure that out.
 
-In our compiler, this can be avoided if we use '`{`' '`}`' the body of the `if` and `else` statement inside blocks.  
+In our compiler, this can be avoided if we use '`{`' '`}`'. We need to write the body of the `if` and `else` statement inside blocks while writing C program.  
