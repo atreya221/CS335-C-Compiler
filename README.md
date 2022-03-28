@@ -98,7 +98,12 @@ make
 ```
 
 ```
-./bin/symtab <path_to_C_file>
+./bin/symtab <path_to_C_file> -o <filename_you_want.dot>
+```
+
+Generate the AST using:
+```
+dot -Tpng <filename>.dot -o <filename>.png
 ```
 
 5 sample test cases have been provided in the tests directory.<br>
