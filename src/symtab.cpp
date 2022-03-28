@@ -940,7 +940,7 @@ create_type_specifier( TYPE_SPECIFIER type, Identifier *id, StructDeclarationLis
             struct_type->is_union = true;
             break;
         case STRUCT:
-            struct_type->is_union = false;
+            struct_type->is_struct = true;
             break;
         default:
             assert( 0 );

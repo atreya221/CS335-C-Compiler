@@ -87,27 +87,24 @@ Expression *create_postfix_expr_struct( string opr, Expression *exp,
             if ( iType != nullptr ) {
                 P->type = *iType;  
             } else {
-                cerr << "Error\n";
-                cerr << "ERROR at line " << line_no << "\n";
+                cerr << "Error: operand not defined in struct at line " << line_no << "\n";
             }
         } else {
-            cerr<<"Operand Error\n";
-            cerr << "ERROR at line " << line_no << "\n";
+            cerr<<"Operand '->' Error  at line " << line_no << "\n";
             exit(0);
         }
     }
     else if ( opr == "." ) {
+        
         if ( exp->type.ptr_level == 0 && peT.is_struct ) {
             Type *iType = peT.struct_definition->get_member( id );
             if ( iType != nullptr ) {
                 P->type = *iType;
             } else {
-                cerr << "Error\n";
-                cerr << "ERROR at line " << line_no << "\n"; 
+                cerr << "Error: operand not defined in struct at line " << line_no << "\n"; 
             }
         } else {
-            cerr<<"Operand Error\n";
-            cerr << "ERROR at line " << line_no << "\n";
+            cerr<<"Operand '.' Error at line " << line_no << "\n";
             exit(0);
         }
     } 
