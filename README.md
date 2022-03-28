@@ -85,6 +85,26 @@ We were not able to come-up with a fix for this conflict as of now.
 This error emerges when there is an `else` condition which can be linked to multiple `if` conditions, and the compiler is not able to figure that out.
 
 In our compiler, this can be avoided if we use '`{`' '`}`'. We need to write the body of the `if` and `else` statement inside blocks while writing C program. 
+
+
+
+## Milestone - 4 (Semantics)
+
+In this stage, we updated to add symbol table generation code and type checking. We also generated AST for good programs.
+
+Build the program using:
+```
+make
+```
+
+```
+./bin/symtab <path_to_C_file>
+```
+
+5 sample test cases have been provided in the tests directory.<br>
+
+
+
 ## References
 For Grammar: https://www.lysator.liu.se/c/ANSI-C-grammar-y.html  
 For Lexer: https://www.lysator.liu.se/c/ANSI-C-grammar-l.html
