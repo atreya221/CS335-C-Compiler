@@ -58,5 +58,8 @@ build/
 #Bin dir
 bin/
 
+./*.csv
+./*.dot
+
 #vscode
 ./.vscode
