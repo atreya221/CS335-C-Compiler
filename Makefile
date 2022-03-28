@@ -1,11 +1,13 @@
 # TOOLS
 CC = gcc
+CXX = g++
 LEX = flex
 YACC = bison -y
 
 #This target can keep changing based on final binary required
 #TARGET = scanner
-TARGET = parser
+# TARGET = parser
+TARGET = symtab
 
 #DIRECTORIES
 
@@ -25,7 +27,7 @@ GRAMMAR=$(SRCDIR)/grammar.y
 
 # FLAGS
 CFLAGS = -g -Wall -D_CC
-
+CXXFLAGS = -g -Wall -D_CXX
 ##LFLAGS
 YFLAGS = -d
 LDFLAGS = -lfl
@@ -38,10 +40,13 @@ all: $(TARGET)
 #	@mkdir -p $(TARGETDIR)
 #	$(CC) $(CFLAGS) $(LDFLAGS) $(INCFLAGS) $(BUILDDIR)/lex.yy.c $(BUILDDIR)/y.tab.c $(SRCDIR)/scanner.c -o $(TARGETDIR)/scanner  
 
-parser: grammar patterns
-	@mkdir -p $(TARGETDIR)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(INCFLAGS) $(BUILDDIR)/lex.yy.c $(BUILDDIR)/y.tab.c $(SRCDIR)/parser.c -o $(TARGETDIR)/parser 
+# parser: grammar patterns
+# 	@mkdir -p $(TARGETDIR)
+# 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(INCFLAGS) $(BUILDDIR)/lex.yy.c $(BUILDDIR)/y.tab.c $(SRCDIR)/parser.cpp $(SRCDIR)/ast.cpp -o $(TARGETDIR)/parser
 
+symtab: grammar patterns
+	@mkdir -p $(TARGETDIR)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(INCFLAGS) $(BUILDDIR)/lex.yy.c $(BUILDDIR)/y.tab.c $(SRCDIR)/parser.cpp $(SRCDIR)/ast.cpp  $(SRCDIR)/symtab.cpp $(SRCDIR)/expression.cpp -o $(TARGETDIR)/symtab
 
 grammar:
 	$(YACC) $(YFLAGS) $(GRAMMAR)

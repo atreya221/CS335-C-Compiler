@@ -10,42 +10,42 @@ struct student {
 
 int main(void) {
     struct student std[3];
-    struct student *ptr = NULL;
+    struct student *ptr;
     
     int i;
-    ptr = std;
+    ptr = &std;
     printf("size of student : %d\n", sizeof(struct student));
     
     for (i = 0; i < 3; i++) {
         printf("Enter detail of student #%d\n", (i + 1));
         printf("Enter ID: ");
-        scanf("%s", ptr->id);
+        // scanf("%s", ptr);
         printf("Enter first name: ");
-        scanf("%s", ptr->firstn);
+        // scanf("%s", ptr->firstn);
         printf("Enter last name: ");
-        scanf("%s", ptr->lastn);
+        scanf("%d", i);
         printf("Enter Points: ");
-        scanf("%f", &ptr->score);
+        // scanf("%f", &ptr->score);
         
         ptr++;
     }
     
-    ptr = std + 2;
+    ptr = &std + 2;
     
     for (i = 2; i >= 0; i--) {
         printf("\nDetail of student #%d\n", (i + 1));
         
         printf("\nResult via std\n");
-        printf("ID: %s\n", std[i].id);
-        printf("First Name: %s\n", std[i].firstn);
-        printf("Last Name: %s\n", std[i].lastn);
-        printf("Points: %f\n", std[i].score);
+        // printf("ID: %s\n", std[i].id);
+        // printf("First Name: %s\n", std[i].firstn);
+        // printf("Last Name: %s\n", std[i].lastn);
+        // printf("Points: %f\n", std[i].score);
 
         printf("\nResult via ptr\n");
-        printf("ID: %s\n", ptr->id);
-        printf("First Name: %s\n", ptr->firstn);
-        printf("Last Name: %s\n", ptr->lastn);
-        printf("Points: %f\n", ptr->score);
+        // printf("ID: %s\n", ptr->id);
+        // printf("First Name: %s\n", ptr->firstn);
+        // printf("Last Name: %s\n", ptr->lastn);
+        // printf("Points: %f\n", ptr->score);
         
         ptr--;
     }

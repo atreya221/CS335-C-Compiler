@@ -78,31 +78,35 @@ extern int yydebug;
     TYPEDEF = 284,
     EXTERN = 285,
     STATIC = 286,
-    CHAR = 287,
-    SHORT = 288,
-    INT = 289,
-    LONG = 290,
-    SIGNED = 291,
-    UNSIGNED = 292,
-    FLOAT = 293,
-    DOUBLE = 294,
-    CONST = 295,
-    VOID = 296,
-    FILE_TYPE = 297,
-    STRUCT = 298,
-    UNION = 299,
-    ELLIPSIS = 300,
-    CASE = 301,
-    DEFAULT = 302,
-    IF = 303,
-    ELSE = 304,
-    SWITCH = 305,
-    WHILE = 306,
-    DO = 307,
-    FOR = 308,
-    CONTINUE = 309,
-    BREAK = 310,
-    RETURN = 311
+    AUTO = 287,
+    REGISTER = 288,
+    SIGNED = 289,
+    UNSIGNED = 290,
+    CHAR = 291,
+    SHORT = 292,
+    INT = 293,
+    LONG = 294,
+    FLOAT = 295,
+    DOUBLE = 296,
+    VOID = 297,
+    CONST = 298,
+    VOLATILE = 299,
+    STRUCT = 300,
+    UNION = 301,
+    ENUM = 302,
+    ELLIPSIS = 303,
+    CASE = 304,
+    DEFAULT = 305,
+    IF = 306,
+    ELSE = 307,
+    SWITCH = 308,
+    WHILE = 309,
+    DO = 310,
+    FOR = 311,
+    GOTO = 312,
+    CONTINUE = 313,
+    BREAK = 314,
+    RETURN = 315
   };
 #endif
 /* Tokens.  */
@@ -135,35 +139,98 @@ extern int yydebug;
 #define TYPEDEF 284
 #define EXTERN 285
 #define STATIC 286
-#define CHAR 287
-#define SHORT 288
-#define INT 289
-#define LONG 290
-#define SIGNED 291
-#define UNSIGNED 292
-#define FLOAT 293
-#define DOUBLE 294
-#define CONST 295
-#define VOID 296
-#define FILE_TYPE 297
-#define STRUCT 298
-#define UNION 299
-#define ELLIPSIS 300
-#define CASE 301
-#define DEFAULT 302
-#define IF 303
-#define ELSE 304
-#define SWITCH 305
-#define WHILE 306
-#define DO 307
-#define FOR 308
-#define CONTINUE 309
-#define BREAK 310
-#define RETURN 311
+#define AUTO 287
+#define REGISTER 288
+#define SIGNED 289
+#define UNSIGNED 290
+#define CHAR 291
+#define SHORT 292
+#define INT 293
+#define LONG 294
+#define FLOAT 295
+#define DOUBLE 296
+#define VOID 297
+#define CONST 298
+#define VOLATILE 299
+#define STRUCT 300
+#define UNION 301
+#define ENUM 302
+#define ELLIPSIS 303
+#define CASE 304
+#define DEFAULT 305
+#define IF 306
+#define ELSE 307
+#define SWITCH 308
+#define WHILE 309
+#define DO 310
+#define FOR 311
+#define GOTO 312
+#define CONTINUE 313
+#define BREAK 314
+#define RETURN 315
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+union YYSTYPE
+{
+#line 11 "src/grammar.y"
+
+	Node * node;
+	int value;
+
+	DeclarationList * declaration_list;
+		Declaration * declaration;
+	
+			DeclarationSpecifiers * declaration_specifiers;
+				TypeSpecifier * type_specifier;
+					EnumeratorList * enumerator_list;
+						Enumerator * enumerator;
+					StructDeclarationList * struct_declaration_list;
+						StructDeclaration * struct_declaration;
+						SpecifierQualifierList * specifier_qualifier_list;
+
+
+			DeclaratorList * init_declarator_list;
+				Declarator * declarator;
+					DirectDeclarator * direct_declarator;
+						Identifier * identifier;
+						ParameterTypeList * parameter_type_list;
+							ParameterDeclaration * parameter_declaration;
+								AbstractDeclarator * abstract_declarator;
+								DirectAbstractDeclarator * direct_abstract_declarator;
+									Constant * constant;
+
+
+					Pointer * pointer;
+						TypeQualifierList * type_qualifier_list;
+	
+	FunctionDefinition * function_definition;
+
+	Expression * expression;
+		PrimaryExpression * primary_expression;
+		AssignmentExpression * assignment_expression;
+		Logical_andExpression * logical_and_expression;
+		Logical_orExpression * logical_or_expression;
+		UnaryExpression * unary_expression;
+		CastExpression * cast_expression;
+		ShiftExpression * shift_expression; 
+		InclusiveorExpression * inclusive_or_expression; 
+		ExclusiveorExpression * exclusive_or_expression;
+		RelationalExpression * relational_expression;
+		MultiplicativeExpression * multiplicative_expression;
+		AdditiveExpression * additive_expression;
+		ArgumentExprList * argument_expression_list;
+		ConditionalExpression * conditional_expression;
+		AndExpression * and_expression;
+		EqualityExpression * equality_expression;  
+		PostfixExpression * postfix_expression;
+		StringLiteral * string_literal;
+
+
+#line 231 "y.tab.h"
+
+};
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif

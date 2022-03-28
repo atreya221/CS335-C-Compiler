@@ -1,9 +1,9 @@
-#include<stdio.h>
+
 
 //To calculate the fibonacci series
 int fib(int n){
-    static int cnt = 1;
-    cnt++;
+    int cnt = 1;
+    cnt = cnt + 1;
     if(n==1) return 1;
     if(n==2) return 1;
     return fib(n-1) + fib(n-2);
@@ -11,14 +11,14 @@ int fib(int n){
 
 int main(void){
     int number;
-    printf("Fibonacci till: ");  // print fibonacci numbers till a given no
-    scanf("%d", &number);
+    // printf("Fibonacci till: ");  // print fibonacci numbers till a given no
+    // scanf("%d", &number);
     int i = 1;
     while(i <= number){
-        printf("%d ", fib(i));
+        // printf("%d ", fib(i));
         i++;
     }
-    printf("\n");
+    // printf("\n");
     return 0;
 }
 

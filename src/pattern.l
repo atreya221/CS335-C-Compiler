@@ -1,7 +1,13 @@
 %{
 #include <stdio.h>
-#include "y.tab.h"
+
 #include "scanner.h"
+#include "ast.h"
+#include "symtab.h"
+#include "expression.h"
+#include "y.tab.h"
+
+extern "C" int yylex();
 
 #define TAB_SIZE 4
 
@@ -14,7 +20,7 @@ void commentCheck();
 void updateLoc();
 int main();
 int yylex();
-int yywrap();
+int check_type();
 
 %}
 
@@ -22,6 +28,8 @@ Digit			[0-9]
 Alpha			[a-zA-Z_]
 Hexa			[a-fA-F0-9]
 Expo			[Ee][+-]?{Digit}+
+FS			    (f|F|l|L)
+IS			    (u|U|l|L)*
 
 %%
 "/*"			{ commentCheck(); }
@@ -95,7 +103,6 @@ Expo			[Ee][+-]?{Digit}+
 "double"		{ updateLoc(); return(DOUBLE); }
 "else"			{ updateLoc(); return(ELSE); }
 "extern"		{ updateLoc(); return(EXTERN); }
-"FILE"          { updateLoc(); return(FILE_TYPE);}
 "float"			{ updateLoc(); return(FLOAT); }
 "for"			{ updateLoc(); return(FOR); }
 "if"			{ updateLoc(); return(IF); }
@@ -114,16 +121,16 @@ Expo			[Ee][+-]?{Digit}+
 "void"			{ updateLoc(); return(VOID); }
 "while"			{ updateLoc(); return(WHILE); }
 
-{Alpha}({Alpha}|{Digit})*		{ updateLoc(); return(IDENTIFIER); }
+{Alpha}({Alpha}|{Digit})* {updateLoc(); return(check_type()); }
 
-0[xX]{Hexa}+	    { updateLoc(); return(CONSTANT); }
-0{Digit}+		{ updateLoc(); return(CONSTANT); }			
-{Digit}+		{ updateLoc(); return(CONSTANT); }			
-'(\\.|[^\\'])+'	{ updateLoc(); return(CONSTANT); }		
+0[xX]{Hexa}+{IS}?	    { updateLoc(); yylval.node = create_terminal("CONSTANT HEX", yytext); return(CONSTANT); }
+0{Digit}+{IS}?          { updateLoc(); yylval.node = create_terminal("CONSTANT INT", yytext); return(CONSTANT); }
+{Digit}+{IS}?		{ updateLoc(); yylval.node = create_terminal("CONSTANT INT", yytext); return(CONSTANT); }			
+L?'(\\.|[^\\'])+'	{ updateLoc(); yylval.node = create_terminal("CONSTANT", yytext); return(CONSTANT); }		
 
-{Digit}+{Expo}		{ updateLoc(); return(CONSTANT); }		
-{Digit}*"."{Digit}+({Expo})?	{ updateLoc(); return(CONSTANT); }
-{Digit}+"."{Digit}*({Expo})?	{ updateLoc(); return(CONSTANT); }
+{Digit}+{Expo}{FS}? 	{ updateLoc(); yylval.node = create_terminal("CONSTANT EXP", yytext); return(CONSTANT); }		
+{Digit}*"."{Digit}+({Expo})?{FS}?	{ updateLoc(); yylval.node = create_terminal("CONSTANT FLOAT", yytext); return(CONSTANT); }
+{Digit}+"."{Digit}*({Expo})?{FS}?	{ updateLoc(); yylval.node = create_terminal("CONSTANT FLOAT", yytext); return(CONSTANT); }
 
 \"(\\.|[^\\"])*\"	{ updateLoc(); return(STRING_LITERAL); }     
 
@@ -138,13 +145,13 @@ void commentCheck()
 	char ch, ch1;
     while(1)
     {
-        while ((ch = input()) != '*' && ch != 0)
+        while ((ch = yyinput()) != '*' && ch != 0)
         {
             if(ch=='\n')
                 line_no++; 
         }
         
-        if ((ch1 = input()) != '/' && ch != 0)
+        if ((ch1 = yyinput()) != '/' && ch != 0)
         {
             unput(ch1);
         }
@@ -181,6 +188,14 @@ int yywrap()
 	return 1;
 }
 
+int check_type(){
+    // if (yytext == type_name) return(TYPE_NAME);
+    //else return IDENTIFIER
+
+    Identifier * identifier = new Identifier(yytext);
+    yylval.identifier = identifier;
+    return(IDENTIFIER);
+}
 
 
 /*
