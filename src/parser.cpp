@@ -16,7 +16,6 @@ extern FILE *yyout;
 Node* root = NULL;
 TOKEN tdata;
 
-// std::ofstream sym_file;
 std::ofstream symbol_file;
 
 static std::ofstream dot_file;
@@ -37,8 +36,6 @@ int main(int argc, char *argv[]) {
 
   	// std::ofstream outfile(argv[3]);
   	dot_file.open(argv[3]); // = outfile;
-	// sym_file.open("symtab.csv");
-	// sym_file << "Scope, Function Name, Symbol Name, Symbol, Type, Symbol Level\n";
 	symbol_file.open("symtab.csv");
 	symbol_file << "Scope, Function Name, Symbol Name, Symbol, Type, Symbol Level\n";
 	
@@ -50,7 +47,6 @@ int main(int argc, char *argv[]) {
 	root = create_non_term("translation_unit");
 	
 	instantiate_primitive_types();
-	// setup_primitive_types();
 	int abc = yyparse();
 	root->dotify();
 	

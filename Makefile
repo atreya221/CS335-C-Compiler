@@ -36,13 +36,13 @@ INCFLAGS = $(addprefix -I, $(INCDIR))
 all: $(TARGET)
 
 
-#scanner: grammar patterns
-#	@mkdir -p $(TARGETDIR)
-#	$(CC) $(CFLAGS) $(LDFLAGS) $(INCFLAGS) $(BUILDDIR)/lex.yy.c $(BUILDDIR)/y.tab.c $(SRCDIR)/scanner.c -o $(TARGETDIR)/scanner  
+scanner: grammar patterns
+	@mkdir -p $(TARGETDIR)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(INCFLAGS) $(BUILDDIR)/lex.yy.c $(BUILDDIR)/y.tab.c $(SRCDIR)/scanner.c -o $(TARGETDIR)/scanner  
 
-# parser: grammar patterns
-# 	@mkdir -p $(TARGETDIR)
-# 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(INCFLAGS) $(BUILDDIR)/lex.yy.c $(BUILDDIR)/y.tab.c $(SRCDIR)/parser.cpp $(SRCDIR)/ast.cpp -o $(TARGETDIR)/parser
+parser: grammar patterns
+	@mkdir -p $(TARGETDIR)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(INCFLAGS) $(BUILDDIR)/lex.yy.c $(BUILDDIR)/y.tab.c $(SRCDIR)/parser.cpp $(SRCDIR)/ast.cpp -o $(TARGETDIR)/parser
 
 symtab: grammar patterns
 	@mkdir -p $(TARGETDIR)

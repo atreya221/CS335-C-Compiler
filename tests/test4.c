@@ -1,157 +1,248 @@
-#include<stdio.h>
+struct node {
+   int data;
+  // int float key;
+   int key;
+   struct node *next;
+};
 
-void main()
-{
-    unsigned char a = 5, b = 9; 
-    int c = 0x125;
-    int e = 1e10;
-    printf("a+b = %d\n", a+b);
-    printf("a-b = %d\n", a-b);
-    printf("a*b = %d\n", a*b);
-    printf("a/b = %d\n", a/b);
-    printf("a%b = %d\n", a%b);
-    printf("a^b = %d\n", a^b);
+struct node *head;
+struct node *current;
 
-    printf("c = %d\n", c);  
-    printf("e = %d\n", e);  
-    
-    printf("a<<1 = %d\n", a<<1);
-    printf("b<<1 = %d\n", b<<1);
-    printf("a>>1 = %d\n", a>>1);
-    printf("b>>1 = %d\n", b>>1);  
+//display the list
+void printList() {
+   struct node *ptr = head;
+   printf("\n[ ");
+   // int x = 2;
+   // int y = 2;
+   // int z = 2+2;
+   //start from the beginning
+   // while(ptr != NULL) {
+   //    printf("(%d,%d) ",ptr->key,ptr->data);
+   //    ptr = ptr->next;
+   // }
+	
+   printf(" ]");
 }
 
+//insert link at the first location
+void insertFirst(int key, int data) {
+   //create a link
+   struct node *link = (struct node*) malloc(sizeof(struct node));
+	
+   // link->key = key;
+   // link->data = data;
+	
+   //point it to old first node
+   // link->next = head;
+	
+   //point first to new first node
+   head = link;
+}
 
-/*
-Line#     Column#   Token               Lexeme                        
-3         1         VOID                void
-3         6         IDENTIFIER          main
-3         10        (                   (
-3         11        )                   )
-4         1         {                   {
-5         5         UNSIGNED            unsigned
-5         14        CHAR                char
-5         19        IDENTIFIER          a
-5         21        =                   =
-5         23        CONSTANT            5
-5         24        ,                   ,
-5         26        IDENTIFIER          b
-5         28        =                   =
-5         30        CONSTANT            9
-5         31        ;                   ;
-6         5         INT                 int
-6         9         IDENTIFIER          c
-6         11        =                   =
-6         13        CONSTANT            0x125
-6         18        ;                   ;
-7         5         INT                 int
-7         9         IDENTIFIER          e
-7         11        =                   =
-7         13        CONSTANT            1e10
-7         17        ;                   ;
-8         5         IDENTIFIER          printf
-8         11        (                   (
-8         12        STRING_LITERAL      "a+b = %d\n"
-8         24        ,                   ,
-8         26        IDENTIFIER          a
-8         27        +                   +
-8         28        IDENTIFIER          b
-8         29        )                   )
-8         30        ;                   ;
-9         5         IDENTIFIER          printf
-9         11        (                   (
-9         12        STRING_LITERAL      "a-b = %d\n"
-9         24        ,                   ,
-9         26        IDENTIFIER          a
-9         27        -                   -
-9         28        IDENTIFIER          b
-9         29        )                   )
-9         30        ;                   ;
-10        5         IDENTIFIER          printf
-10        11        (                   (
-10        12        STRING_LITERAL      "a*b = %d\n"
-10        24        ,                   ,
-10        26        IDENTIFIER          a
-10        27        *                   *
-10        28        IDENTIFIER          b
-10        29        )                   )
-10        30        ;                   ;
-11        5         IDENTIFIER          printf
-11        11        (                   (
-11        12        STRING_LITERAL      "a/b = %d\n"
-11        24        ,                   ,
-11        26        IDENTIFIER          a
-11        27        /                   /
-11        28        IDENTIFIER          b
-11        29        )                   )
-11        30        ;                   ;
-12        5         IDENTIFIER          printf
-12        11        (                   (
-12        12        STRING_LITERAL      "a%b = %d\n"
-12        24        ,                   ,
-12        26        IDENTIFIER          a
-12        27        %                   %
-12        28        IDENTIFIER          b
-12        29        )                   )
-12        30        ;                   ;
-13        5         IDENTIFIER          printf
-13        11        (                   (
-13        12        STRING_LITERAL      "a^b = %d\n"
-13        24        ,                   ,
-13        26        IDENTIFIER          a
-13        27        ^                   ^
-13        28        IDENTIFIER          b
-13        29        )                   )
-13        30        ;                   ;
-15        5         IDENTIFIER          printf
-15        11        (                   (
-15        12        STRING_LITERAL      "c = %d\n"
-15        22        ,                   ,
-15        24        IDENTIFIER          c
-15        25        )                   )
-15        26        ;                   ;
-16        5         IDENTIFIER          printf
-16        11        (                   (
-16        12        STRING_LITERAL      "e = %d\n"
-16        22        ,                   ,
-16        24        IDENTIFIER          e
-16        25        )                   )
-16        26        ;                   ;
-18        5         IDENTIFIER          printf
-18        11        (                   (
-18        12        STRING_LITERAL      "a<<1 = %d\n"
-18        25        ,                   ,
-18        27        IDENTIFIER          a
-18        28        LEFT_OP             <<
-18        30        CONSTANT            1
-18        31        )                   )
-18        32        ;                   ;
-19        5         IDENTIFIER          printf
-19        11        (                   (
-19        12        STRING_LITERAL      "b<<1 = %d\n"
-19        25        ,                   ,
-19        27        IDENTIFIER          b
-19        28        LEFT_OP             <<
-19        30        CONSTANT            1
-19        31        )                   )
-19        32        ;                   ;
-20        5         IDENTIFIER          printf
-20        11        (                   (
-20        12        STRING_LITERAL      "a>>1 = %d\n"
-20        25        ,                   ,
-20        27        IDENTIFIER          a
-20        28        RIGHT_OP            >>
-20        30        CONSTANT            1
-20        31        )                   )
-20        32        ;                   ;
-21        5         IDENTIFIER          printf
-21        11        (                   (
-21        12        STRING_LITERAL      "b>>1 = %d\n"
-21        25        ,                   ,
-21        27        IDENTIFIER          b
-21        28        RIGHT_OP            >>
-21        30        CONSTANT            1
-21        31        )                   )
-21        32        ;                   ;
-22        1         }                   }
-*/
+//delete first item
+struct node* deleteFirst( void ) {
+
+   //save reference to first link
+   struct node *tempLink = head;
+	
+   //mark next to first link as first 
+   // head = head->next;
+	
+   //return the deleted link
+   return tempLink;
+}
+
+//is list empty
+//bool isEmpty() {
+//  return head == NULL;
+//}
+
+int length() {
+   int length = 0;
+   struct node *current;
+	
+   // for(current = head; current != NULL; current = current->next) {
+   //    length++;
+   // }
+	
+   return length;
+}
+
+//find a link with given key
+struct node* find(int key) {
+
+   //start from the first link
+   struct node* current = head;
+
+   //if list is empty
+   // if(head == NULL) {
+   //    return NULL;
+   // }
+
+   //navigate through list
+   // while(current->key != key) {
+	
+   //    //if it is last node
+   //    if(current->next == NULL) {
+   //       return NULL;
+   //    } else {
+   //       //go to next link
+   //       current = current->next;
+   //    }
+   // }      
+	
+   //if data found, return the current Link
+   return current;
+}
+
+//delete a link with given key
+struct node* delete(int key) {
+
+   //start from the first link
+   struct node* current = head;
+   struct node* previous;
+	
+   //if list is empty
+   // if(head == NULL) {
+   //    return NULL;
+   // }
+
+   //navigate through list
+   // while(current->key != key) {
+
+   //    //if it is last node
+   //    if(current->next == NULL) {
+   //       return NULL;
+   //    } else {
+   //       //store reference to current link
+   //       previous = current;
+   //       //move to next link
+   //       current = current->next;
+   //    }
+   // }
+
+   // //found a match, update the link
+   // if(current == head) {
+   //    //change first to point to next link
+   //    head = head->next;
+   // } else {
+   //    //bypass the current link
+   //    previous->next = current->next;
+   // }    
+	
+   return current;
+}
+
+void sort() {
+
+   int i, j, k, tempKey, tempData;
+   struct node *current;
+   struct node *next;
+	
+   int size = length();
+   k = size ;
+	
+   for ( i = 0 ; i < size - 1 ; i++, k-- ) {
+      current = head;
+      // next = head->next;
+		
+      // for ( j = 1 ; j < k ; j++ ) {   
+
+      //    if ( current->data > next->data ) {
+      //       tempData = current->data;
+      //       current->data = next->data;
+      //       next->data = tempData;
+
+      //       tempKey = current->key;
+      //       current->key = next->key;
+      //       next->key = tempKey;
+      //    }
+			
+      //    current = current->next;
+      //    next = next->next;
+      // }
+   }   
+}
+
+void reverse(struct node** head_ref) {
+   struct node* prev;
+   // struct node* current = *head_ref;
+   struct node* next;
+	
+   // while (current != NULL) {
+   //    next  = current->next;
+   //    current->next = prev;   
+   //    prev = current;
+   //    current = next;
+   // }
+	
+   // *head_ref = prev;
+}
+
+void main() {
+   struct node *foundLink;
+   insertFirst(1,10);
+   insertFirst(2,20);
+   insertFirst(3,30);
+   insertFirst(4,1);
+   insertFirst(5,40);
+   insertFirst(6,56); 
+
+   printf("Original List: "); 
+	
+   //print list
+   printList();
+
+   // while(!isEmpty()) {            
+   //    struct node *temp = deleteFirst();
+   //    printf("\nDeleted value:");
+   //    printf("(%d,%d) ",temp->key,temp->data);
+   // }  
+	
+   printf("\nList after deleting all items: ");
+   printList();
+   insertFirst(1,10);
+   insertFirst(2,20);
+   insertFirst(3,30);
+   insertFirst(4,1);
+   insertFirst(5,40);
+   insertFirst(6,56);
+   
+   printf("\nRestored List: ");
+   printList();
+   printf("\n");  
+
+   // foundLink = find(4);
+	
+   // if(foundLink != NULL) {
+   //    printf("Element found: ");
+   //    printf("(%d,%d) ",foundLink->key,foundLink->data);
+   //    printf("\n");  
+   // } else {
+   //    printf("Element not found.");
+   // }
+
+   delete(4);
+   printf("List after deleting an item: ");
+   printList();
+   printf("\n");
+   // foundLink = find(4);
+	
+   // if(foundLink != NULL) {
+   //    printf("Element found: ");
+   //    printf("(%d,%d) ",foundLink->key,foundLink->data);
+   //    printf("\n");
+   // } else {
+   //    printf("Element not found.");
+   // }
+	
+   printf("\n");
+   sort();
+	
+   printf("List after sorting the data: ");
+   printList();
+	
+   reverse(&head);
+   printf("\nList after reversing the data: ");
+   printList();
+}

@@ -1,0 +1,4 @@
+Scope, Function Name, Symbol Name, Symbol, Type, Symbol Level
+global, -, max, fun: int, 0
+local, max, num1, int, arg
+local, max, num2, int, arg
