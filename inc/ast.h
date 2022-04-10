@@ -14,8 +14,10 @@ inline bool instanceof(const T*) {
 
 class Node {
 	public:
-		unsigned long long int node_id;
+		unsigned long long int id;
 		int is_written = 1;
+		int line_no;
+		int col_no;
 
 		virtual void add_child(Node * child);
 		virtual void add_children (Node * child1, Node * child2);
@@ -23,8 +25,11 @@ class Node {
 		virtual void add_children (Node * child1, Node * child2, Node * child3, Node * child4);
 		virtual void dotify() = 0;
 
+		unsigned long long int get_id();
+
 	protected:
 		Node ();
+		Node (int line_no, int col_no);
 		virtual ~Node() {}
 };
 
@@ -35,6 +40,7 @@ class Terminal : public Node {
 		string value;
 		void dotify();
 		Terminal(const char * string_name, const char * string_value);
+		Terminal(const char * string_name, const char * string_value, int line_no, int col_no);
 		
 };
 
@@ -57,6 +63,8 @@ unsigned long long int get_next_node_id();
 void file_writer(std::string s);
 
 Node * create_terminal(const char * name, const char * value);
+Terminal * create_terminal(const char * name, const char * value, unsigned int line_no, unsigned int col_no);
+
 Node * create_non_term(const char * name);
 Node * create_non_term(const char* name, Node* child1);
 Node * create_non_term(const char* name, Node* child1, Node* child2);

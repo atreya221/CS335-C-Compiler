@@ -13,13 +13,25 @@ unsigned long long int get_next_node_id() {
 	return node_id_count++;
 }
 
-Node::Node() : node_id(get_next_node_id()) {};
+Node::Node() : id(get_next_node_id()) {};
+
+Node::Node(int line_no, int col_no): id(get_next_node_id()), line_no(line_no), col_no(col_no){};
+
+unsigned long long int Node::get_id() {
+	return id;
+}
 
 Terminal::Terminal(const char * string_name, const char * string_value) {
 	name = string(string_name);
 	if (string_value) {
 		value = string(string_value);
 	}
+}
+
+Terminal::Terminal(const char * string_name, const char * string_value, int line_no, int col_no): Node(line_no, col_no) {
+	name = string(string_name);
+	if (string_value)
+		value = string(string_value);
 }
 
 Non_Terminal::Non_Terminal(const char * string_name) {
@@ -59,6 +71,10 @@ Node * create_terminal(const char* name, const char * value) {
 	return new_terminal_node;
 }
 
+Terminal * create_terminal(const char * name, const char * value, int line_no, int col_no){
+	Terminal * terminal = new Terminal(name, value, line_no, col_no);
+	return terminal;
+}
 
 Node * create_non_term(const char* name) {
 	Non_Terminal * new_node = new Non_Terminal(name);
@@ -118,7 +134,7 @@ void Terminal:: dotify () {
 	if(is_written == 1){
 		is_written = 0;
 		stringstream ss;
-		ss << "\t" << node_id << " [label=\"" << name << "\"];\n";
+		ss << "\t" << id << " [label=\"" << name << "\"];\n";
 		file_writer(ss.str());
 	}
 }
@@ -126,10 +142,10 @@ void Non_Terminal:: dotify () {
 	if(is_written == 1){
 		is_written = 0;
 		stringstream ss;
-		ss << "\t" << node_id << " [label=\"" << name << "\"];\n";
+		ss << "\t" << id << " [label=\"" << name << "\"];\n";
 		auto it = children.begin();
 		while(it != children.end()){
-			ss << "\t" << node_id << " -> " << (*it)->node_id << ";\n";
+			ss << "\t" << id << " -> " << (*it)->id << ";\n";
 			it++;
 		}
 

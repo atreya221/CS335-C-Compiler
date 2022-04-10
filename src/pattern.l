@@ -1,9 +1,12 @@
 %{
 #include <stdio.h>
-
+#include <iostream>
+#include <sstream>
 #include "scanner.h"
 #include "ast.h"
 #include "symtab.h"
+#include "3ac.h"
+#include "statement.h"
 #include "expression.h"
 #include "y.tab.h"
 
@@ -15,8 +18,15 @@ extern TOKEN tdata;
 
 int col_no = 1;
 int line_no = 1;
+int prev_line_no = 0;
+int prev_col_no = 0;
+bool wspace = false;
+
+std::stringstream text;
+std::vector<std::string> code;
 
 void commentCheck();
+void updateLoc_wspace();
 void updateLoc();
 int main();
 int yylex();
@@ -32,37 +42,36 @@ FS			    (f|F|l|L)
 IS			    (u|U|l|L)*
 
 %%
-"/*"			{ commentCheck(); }
-"//"[^\n]*\n	{ line_no++;  col_no = 1; } 
-"#"[^\n]*\n     { line_no++; col_no = 1;}
+"/*"			{ wspace = true; commentCheck(); }
+"//"[^\n]*\n	{ wspace = true; code.push_back(text.str()); text.clear(); text.str(std::string()); line_no++;  col_no = 1; } 
 
 "..."			{ updateLoc(); return(ELLIPSIS); }	
 
-"-"				{ updateLoc(); return('-'); }
-"+"				{ updateLoc(); return('+'); }
-"*"				{ updateLoc(); return('*'); }
+"-"				{  yylval.terminal= create_terminal("-", NULL, line_no, col_no); updateLoc(); return('-'); }
+"+"				{  yylval.terminal= create_terminal("+", NULL, line_no, col_no); updateLoc(); return('+'); }
+"*"				{  yylval.terminal= create_terminal("*", NULL, line_no, col_no); updateLoc(); return('*'); }
 "/"				{ updateLoc(); return('/'); }
 "%"				{ updateLoc(); return('%'); }
 "^"				{ updateLoc(); return('^'); }
 
-"+="			{ updateLoc(); return(ADD_ASSIGN); }
-"-="			{ updateLoc(); return(SUB_ASSIGN); }
-"*="			{ updateLoc(); return(MUL_ASSIGN); }
-"/="			{ updateLoc(); return(DIV_ASSIGN); }
-"%="			{ updateLoc(); return(MOD_ASSIGN); }
-"^="			{ updateLoc(); return(XOR_ASSIGN); }
-">>="			{ updateLoc(); return(RIGHT_ASSIGN); }
-"<<="			{ updateLoc(); return(LEFT_ASSIGN); }
-"&="			{ updateLoc(); return(AND_ASSIGN); }
-"|="			{ updateLoc(); return(OR_ASSIGN); }
+"+="			{  yylval.terminal= create_terminal("+=", NULL, line_no, col_no); updateLoc(); return(ADD_ASSIGN); }
+"-="			{  yylval.terminal= create_terminal("-=", NULL, line_no, col_no); updateLoc(); return(SUB_ASSIGN); }
+"*="			{  yylval.terminal= create_terminal("*=", NULL, line_no, col_no); updateLoc(); return(MUL_ASSIGN); }
+"/="			{  yylval.terminal= create_terminal("/=", NULL, line_no, col_no); updateLoc(); return(DIV_ASSIGN); }
+"%="			{  yylval.terminal= create_terminal("%=", NULL, line_no, col_no); updateLoc(); return(MOD_ASSIGN); }
+"^="			{  yylval.terminal= create_terminal("^=", NULL, line_no, col_no); updateLoc(); return(XOR_ASSIGN); }
+">>="			{ yylval.terminal= create_terminal(">>=", NULL, line_no, col_no); updateLoc(); return(RIGHT_ASSIGN); }
+"<<="			{ yylval.terminal= create_terminal("<<=", NULL, line_no, col_no); updateLoc(); return(LEFT_ASSIGN); }
+"&="			{  yylval.terminal= create_terminal("&=", NULL, line_no, col_no); updateLoc(); return(AND_ASSIGN); }
+"|="			{  yylval.terminal= create_terminal("|=", NULL, line_no, col_no); updateLoc(); return(OR_ASSIGN); }
 
-"++"			{ updateLoc(); return(INC_OP); }
-"--"			{ updateLoc(); return(DEC_OP); }
+"++"			{  yylval.terminal= create_terminal("++", NULL, line_no, col_no); updateLoc(); return(INC_OP); }
+"--"			{  yylval.terminal= create_terminal("--", NULL, line_no, col_no); updateLoc(); return(DEC_OP); }
 
-"="				{ updateLoc(); return('='); }
+"="				{  yylval.terminal= create_terminal("=", NULL, line_no, col_no); updateLoc(); return('='); }
 
-">>"			{ updateLoc(); return(RIGHT_OP); }
-"<<"			{ updateLoc(); return(LEFT_OP); }
+">>"			{  yylval.terminal= create_terminal(">>", NULL, line_no, col_no); updateLoc(); return(RIGHT_OP); }
+"<<"			{  yylval.terminal= create_terminal("<<", NULL, line_no, col_no); updateLoc(); return(LEFT_OP); }
 "->"			{ updateLoc(); return(PTR_OP); }
 "&&"			{ updateLoc(); return(AND_OP); }
 "||"			{ updateLoc(); return(OR_OP); }
@@ -85,56 +94,56 @@ IS			    (u|U|l|L)*
 "?"				{ updateLoc(); return('?'); }
 
 
-"!"				{ updateLoc(); return('!'); }
-"&"				{ updateLoc(); return('&'); }
+"!"				{  yylval.terminal= create_terminal("!", NULL, line_no, col_no); updateLoc(); return('!'); }
+"&"				{  yylval.terminal= create_terminal("&", NULL, line_no, col_no); updateLoc(); return('&'); }
 "|"				{ updateLoc(); return('|'); }
-"~"				{ updateLoc(); return('~'); }
+"~"				{  yylval.terminal= create_terminal("~", NULL, line_no, col_no); updateLoc(); return('~'); }
 "<"				{ updateLoc(); return('<'); }
 ">"				{ updateLoc(); return('>'); }
 
 
 "break"			{ updateLoc(); return(BREAK); }
 "case"			{ updateLoc(); return(CASE); }
-"char"			{ updateLoc(); return(CHAR); }
+"char"			{ yylval.type_specifier = create_type_specifier(CHAR, line_no, col_no); updateLoc(); return(CHAR); }
 "const"			{ updateLoc(); return(CONST); }
 "continue"		{ updateLoc(); return(CONTINUE); }
 "default"		{ updateLoc(); return(DEFAULT); }
 "do"			{ updateLoc(); return(DO); }
-"double"		{ updateLoc(); return(DOUBLE); }
+"double"		{ yylval.type_specifier = create_type_specifier(DOUBLE, line_no, col_no); updateLoc(); return(DOUBLE); }
 "else"			{ updateLoc(); return(ELSE); }
 "extern"		{ updateLoc(); return(EXTERN); }
-"float"			{ updateLoc(); return(FLOAT); }
+"float"			{ yylval.type_specifier = create_type_specifier(FLOAT, line_no, col_no); updateLoc(); return(FLOAT); }
 "for"			{ updateLoc(); return(FOR); }
 "if"			{ updateLoc(); return(IF); }
-"int"			{ updateLoc(); return(INT); }
-"long"			{ updateLoc(); return(LONG); }
+"int"			{ yylval.type_specifier = create_type_specifier(INT, line_no, col_no); updateLoc(); return(INT); }
+"long"			{ yylval.type_specifier = create_type_specifier(LONG, line_no, col_no); updateLoc(); return(LONG); }
 "return"		{ updateLoc(); return(RETURN); }
-"short"			{ updateLoc(); return(SHORT); }
-"signed"		{ updateLoc(); return(SIGNED); }
-"sizeof"		{ updateLoc(); return(SIZEOF); }
+"short"			{ yylval.type_specifier = create_type_specifier(SHORT, line_no, col_no); updateLoc(); return(SHORT); }
+"signed"		{ yylval.type_specifier = create_type_specifier(SIGNED, line_no, col_no); updateLoc(); return(SIGNED); }
+"sizeof"		{ yylval.type_specifier = create_type_specifier(SIZEOF, line_no, col_no); updateLoc(); return(SIZEOF); }
 "static"		{ updateLoc(); return(STATIC); }
 "struct"		{ updateLoc(); return(STRUCT); }
 "switch"		{ updateLoc(); return(SWITCH); }
 "typedef"		{ updateLoc(); return(TYPEDEF); }
 "union"			{ updateLoc(); return(UNION); }
-"unsigned"		{ updateLoc(); return(UNSIGNED); }
-"void"			{ updateLoc(); return(VOID); }
+"unsigned"		{ yylval.type_specifier = create_type_specifier(UNSIGNED, line_no, col_no); updateLoc(); return(UNSIGNED); }
+"void"			{ yylval.type_specifier = create_type_specifier(VOID, line_no, col_no); updateLoc(); return(VOID); }
 "while"			{ updateLoc(); return(WHILE); }
 
-{Alpha}({Alpha}|{Digit})* {updateLoc(); return(check_type()); }
+{Alpha}({Alpha}|{Digit})* { int type = check_type(); updateLoc(); return(type); }
 
-0[xX]{Hexa}+{IS}?	    { updateLoc(); yylval.node = create_terminal("CONSTANT HEX", yytext); return(CONSTANT); }
-0{Digit}+{IS}?          { updateLoc(); yylval.node = create_terminal("CONSTANT INT", yytext); return(CONSTANT); }
-{Digit}+{IS}?		{ updateLoc(); yylval.node = create_terminal("CONSTANT INT", yytext); return(CONSTANT); }			
-L?'(\\.|[^\\'])+'	{ updateLoc(); yylval.node = create_terminal("CONSTANT", yytext); return(CONSTANT); }		
+0[xX]{Hexa}+{IS}?	    { yylval.constant = create_constant("CONSTANT HEX", yytext, line_no, col_no); updateLoc(); return(CONSTANT); }
+0{Digit}+{IS}?          { yylval.constant = create_constant("CONSTANT INT", yytext, line_no, col_no); updateLoc(); return(CONSTANT); }
+{Digit}+{IS}?		{ yylval.constant = create_constant("CONSTANT INT", yytext, line_no, col_no); updateLoc(); return(CONSTANT); }			
+L?'(\\.|[^\\'])+'	{ updateLoc(); yylval.constant = create_constant("CONSTANT CHAR", yytext, line_no, prev_col_no); return(CONSTANT); }		
 
-{Digit}+{Expo}{FS}? 	{ updateLoc(); yylval.node = create_terminal("CONSTANT EXP", yytext); return(CONSTANT); }		
-{Digit}*"."{Digit}+({Expo})?{FS}?	{ updateLoc(); yylval.node = create_terminal("CONSTANT FLOAT", yytext); return(CONSTANT); }
-{Digit}+"."{Digit}*({Expo})?{FS}?	{ updateLoc(); yylval.node = create_terminal("CONSTANT FLOAT", yytext); return(CONSTANT); }
+{Digit}+{Expo}{FS}? 	{ yylval.constant = create_constant("CONSTANT EXP", yytext, line_no, col_no); updateLoc(); return(CONSTANT); }		
+{Digit}*"."{Digit}+({Expo})?{FS}?	{ yylval.constant = create_constant("CONSTANT FLOAT", yytext, line_no, col_no); updateLoc(); return(CONSTANT); }
+{Digit}+"."{Digit}*({Expo})?{FS}?	{ yylval.constant = create_constant("CONSTANT FLOAT", yytext, line_no, col_no); updateLoc(); return(CONSTANT); }
 
-\"(\\.|[^\\"])*\"	{ updateLoc(); return(STRING_LITERAL); }     
+\"(\\.|[^\\"])*\"	{ yylval.terminal = create_terminal("STRING LITERAL", yytext, line_no, col_no); updateLoc(); return(STRING_LITERAL); }     
 
-[ \t\n]		{ updateLoc(); }
+[ \t\n\v\f ]		{ updateLoc_wspace(); }
 .			{ /* ignore  characters */ }
 
 %%
@@ -147,8 +156,12 @@ void commentCheck()
     {
         while ((ch = yyinput()) != '*' && ch != 0)
         {
-            if(ch=='\n')
-                line_no++; 
+            if(ch=='\n'){
+                code.push_back(text.str());
+                text.clear();
+                text.str(std::string());
+                line_no++;
+            }
         }
         
         if ((ch1 = yyinput()) != '/' && ch != 0)
@@ -160,24 +173,59 @@ void commentCheck()
 
 }
 
+void updateLoc_wspace(){
+    if(!wspace){
+        prev_col_no = col_no;
+        prev_line_no = line_no;
+    }
+    wspace = true;
+    int length = strlen(yytext);
+    for(int i = 0; i < length; i++){
+        if(yytext[i] == '\n'){
+            col_no = 1;
+            line_no++;
+            code.push_back(text.str());
+            text.clear();
+            text.str(std::string());
+        }
+        else if(yytext[i] == '\t'){
+            int chunk_filled = col_no % TAB_SIZE;
+            col_no += TAB_SIZE - chunk_filled;
+            text << yytext[i];
+        }
+        else{
+            col_no++;
+            text << yytext[i];
+        }
+    }
+}
+
 // Update the current column number and line number
 void updateLoc()
-{
-	tdata.col_no = col_no;
-	tdata.line_no = line_no;
+{   
+    if(!wspace){
+        prev_col_no = col_no;
+        prev_line_no = line_no;
+    }
+    wspace = false;
 	tdata.lexeme = strdup(yytext);
     int length = strlen(yytext);
     for(int i = 0; i < length; i++){
         if(yytext[i] == '\n'){
             line_no++;
             col_no = 1;
+            code.push_back(text.str());
+            text.clear();
+            text.str(std::string());
         }
         else if(yytext[i] == '\t'){
             int chunk_filled = col_no % TAB_SIZE;
             col_no += TAB_SIZE - chunk_filled;
+            text << yytext[i];
         }
         else{
             col_no++;
+            text << yytext[i];
         }
 
     }
@@ -189,11 +237,25 @@ int yywrap()
 }
 
 int check_type(){
-    // if (yytext == type_name) return(TYPE_NAME);
-    //else return IDENTIFIER
+    if(std::string(yytext) == "NULL"){
+        yylval.constant = create_constant("CONSTANT HEX", "0x0", line_no, col_no);
+        yylval.constant->ConstantType = Type(VOID_T, 1, true);
+        yylval.constant->ConstantType.is_pointer = true;
+        return(CONSTANT);
+    }
+    if(std::string(yytext) == "true"){
+        yylval.constant = create_constant("CONSTANT INT", "1", line_no, col_no);
+        yylval.constant->ConstantType = Type(CHAR_T, 0, true);
+        return(CONSTANT);
+    }
+    else if (std::string(yytext) == "false"){
+        yylval.constant = create_constant("CONSTANT INT", "0", line_no, col_no);
+        yylval.constant->ConstantType = Type(CHAR_T, 0, true);
+        return(CONSTANT);
+    }
 
-    Identifier * identifier = new Identifier(yytext);
-    yylval.identifier = identifier;
+    Identifier *id = new Identifier(yytext, line_no, col_no);
+    yylval.identifier = id;
     return(IDENTIFIER);
 }
 

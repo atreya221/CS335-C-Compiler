@@ -53,9 +53,9 @@ extern int yydebug;
     CONSTANT = 259,
     STRING_LITERAL = 260,
     SIZEOF = 261,
-    PTR_OP = 262,
-    INC_OP = 263,
-    DEC_OP = 264,
+    INC_OP = 262,
+    DEC_OP = 263,
+    PTR_OP = 264,
     LEFT_OP = 265,
     RIGHT_OP = 266,
     LE_OP = 267,
@@ -74,21 +74,21 @@ extern int yydebug;
     AND_ASSIGN = 280,
     XOR_ASSIGN = 281,
     OR_ASSIGN = 282,
-    TYPE_NAME = 283,
-    TYPEDEF = 284,
-    EXTERN = 285,
-    STATIC = 286,
-    AUTO = 287,
-    REGISTER = 288,
-    SIGNED = 289,
-    UNSIGNED = 290,
-    CHAR = 291,
-    SHORT = 292,
-    INT = 293,
-    LONG = 294,
-    FLOAT = 295,
-    DOUBLE = 296,
-    VOID = 297,
+    TYPEDEF = 283,
+    EXTERN = 284,
+    STATIC = 285,
+    AUTO = 286,
+    REGISTER = 287,
+    SIGNED = 288,
+    UNSIGNED = 289,
+    CHAR = 290,
+    SHORT = 291,
+    INT = 292,
+    LONG = 293,
+    FLOAT = 294,
+    DOUBLE = 295,
+    VOID = 296,
+    TYPE_NAME = 297,
     CONST = 298,
     VOLATILE = 299,
     STRUCT = 300,
@@ -114,9 +114,9 @@ extern int yydebug;
 #define CONSTANT 259
 #define STRING_LITERAL 260
 #define SIZEOF 261
-#define PTR_OP 262
-#define INC_OP 263
-#define DEC_OP 264
+#define INC_OP 262
+#define DEC_OP 263
+#define PTR_OP 264
 #define LEFT_OP 265
 #define RIGHT_OP 266
 #define LE_OP 267
@@ -135,21 +135,21 @@ extern int yydebug;
 #define AND_ASSIGN 280
 #define XOR_ASSIGN 281
 #define OR_ASSIGN 282
-#define TYPE_NAME 283
-#define TYPEDEF 284
-#define EXTERN 285
-#define STATIC 286
-#define AUTO 287
-#define REGISTER 288
-#define SIGNED 289
-#define UNSIGNED 290
-#define CHAR 291
-#define SHORT 292
-#define INT 293
-#define LONG 294
-#define FLOAT 295
-#define DOUBLE 296
-#define VOID 297
+#define TYPEDEF 283
+#define EXTERN 284
+#define STATIC 285
+#define AUTO 286
+#define REGISTER 287
+#define SIGNED 288
+#define UNSIGNED 289
+#define CHAR 290
+#define SHORT 291
+#define INT 292
+#define LONG 293
+#define FLOAT 294
+#define DOUBLE 295
+#define VOID 296
+#define TYPE_NAME 297
 #define CONST 298
 #define VOLATILE 299
 #define STRUCT 300
@@ -173,9 +173,10 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 11 "src/grammar.y"
+#line 16 "src/grammar.y"
 
 	Node * node;
+	Terminal * terminal;
 	int value;
 
 	DeclarationList * declaration_list;
@@ -226,8 +227,13 @@ union YYSTYPE
 		PostfixExpression * postfix_expression;
 		StringLiteral * string_literal;
 
+	TypeName * type_name;
+	Label * label;
+	GoTo * _goto;
+	Statement * statement;
 
-#line 231 "y.tab.h"
+
+#line 237 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
