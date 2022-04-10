@@ -3,9 +3,11 @@
 
 #include "ast.h"
 #include "symtab.h"
+#include "statement.h"
 #include <string>
 #include <deque>
 #include <map>
+#include <3ac.h>
 
 using namespace std;
 
@@ -22,8 +24,17 @@ class Expression : public Non_Terminal {
   public:
     Type type;
     int num_opearands;
-    Expression() : Non_Terminal( "" ){};
+    Address  * res;
+    vector<GoTo*> truelist;
+    vector<GoTo*> falselist;
+    #if 0
+      Code
+      NextList
+      FalseList
+    #endif
+    Expression() : Non_Terminal( "" ), res( nullptr){};
 };
+
 class PrimaryExpression : public Expression {
   public:
     int isTerminal;
@@ -46,13 +57,8 @@ Expression *create_primary_identifier( Identifier *id );
 
 class ArgumentExprList : public Expression {
   public:
-    Expression *op1; 
-    Expression *op2;
-
-    ArgumentExprList() {
-        op1 = nullptr;
-        op2 = nullptr;
-    };
+    vector <Expression * > args;
+    ArgumentExprList() {};
 };
 
 
@@ -68,7 +74,7 @@ class UnaryExpression : public Expression {
 };
 
 Expression *create_unary_expression_cast( Node *node_op, Expression *exp );
-Expression *create_unary_expression_ue( string unary_op,Expression *unary_exp ); 
+Expression *create_unary_expression_ue( Terminal * unary_opr,Expression *unary_exp ); 
 
 class CastExpression : public Expression {
   public:
@@ -293,71 +299,30 @@ class PostfixExpression : public Expression {
     };
 };
 
+union data{
+  unsigned long ul;
+  int i;
+  unsigned int ui;
+  long l;
+  float f;
+  double d;
+  char c;
+  unsigned char uc;
+};
+
 class Constant : public Terminal {
   public:
-    Constant( const char *name );
-
+    Constant( const char *name, const char* value, int line_no, int col_no);
+    union data val;
+    Type ConstantType;
+    
     Type getConstantType() {
-        Type returnT( 2, 0, false );
-        int len = value.length();
-        if ( name == "CONSTANT INT"  || name == "CONSTANT HEX" ) {        
-            int type_long = 0, type_unsigned = 0, i = 0;
-            while(i<len){
-                if ( value[i] == 'u' )
-                    type_unsigned = 1;
-                if ( value[i] == 'U' )
-                    type_unsigned = 1;
-                if ( value[i] == 'l' ) 
-                    type_long = 1;
-                if ( value[i] == 'L' ) 
-                    type_long = 1;                  
-                if( type_long != 0 && type_unsigned != 0){
-                  returnT.typeIndex = PrimitiveTypes::U_LONG_T;
-                  return returnT;
-                }                
-                i++;
-            }
-            
-            if ( type_unsigned != 0 ) {
-                returnT.typeIndex = PrimitiveTypes::U_INT_T;
-                return returnT;
-            }
-            if ( type_long != 0 ) {
-                returnT.typeIndex = PrimitiveTypes::LONG_T;
-                return returnT;
-            }
-            
-            returnT.typeIndex = PrimitiveTypes::INT_T;
-            return returnT;
-            
-        } else if ( name == "CONSTANT EXP" ) {
-            
-            int i=0;
-            while(i<len){
-                if ( value[i] == 'F' || value[i] == 'f' ) {
-                    returnT.typeIndex = PrimitiveTypes::FLOAT_T;
-                    return returnT;
-                }
-            }
-            returnT.typeIndex = PrimitiveTypes::LONG_T;
-            return returnT;
-        } else if ( name == "CONSTANT FLOAT" ) {
-            
-            int i=0;
-            while(i<len){                
-                if ( value[i] == 'F' || value[i] == 'f' ) {
-                    returnT.typeIndex = PrimitiveTypes::FLOAT_T;
-                    return returnT;
-                }
-                i++;
-            }         
-            returnT.typeIndex = PrimitiveTypes::DOUBLE_T;
-            return returnT;
-        }  else {
-            return returnT;
-        }
+      return ConstantType;
     }
+    void negate();
 };
+
+Constant* create_constant(const char * name, const char * value, int line_no, int col_no);
 
 class StringLiteral : public Terminal {
   public:
@@ -365,7 +330,7 @@ class StringLiteral : public Terminal {
 };
 
 Expression *create_postfix_expr_arr( Expression *p_exp, Expression *exp );
-Expression *create_postfix_expr_ido( string opr, Expression *p_exp );
+Expression *create_postfix_expr_ido( Terminal * opr, Expression *p_exp );
 Expression *create_postfix_expr_struct( string str, Expression *exp,Identifier *id );
 Expression *create_toplevel_expression( Expression *exp1, Expression *exp2 );
 
