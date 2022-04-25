@@ -5,9 +5,8 @@
 #include "scanner.h"
 #include "ast.h"
 #include "symtab.h"
-#include "3ac.h"
-#include "statement.h"
 #include "expression.h"
+#include "statement.h"
 #include "y.tab.h"
 
 extern "C" int yylex();
@@ -16,10 +15,10 @@ extern "C" int yylex();
 
 extern TOKEN tdata;
 
-int col_no = 1;
-int line_no = 1;
-int prev_line_no = 0;
-int prev_col_no = 0;
+unsigned int col_no = 1;
+unsigned int line_no = 1;
+unsigned int prev_line_no = 0;
+unsigned int prev_col_no = 0;
 bool wspace = false;
 
 std::stringstream text;
@@ -104,38 +103,40 @@ IS			    (u|U|l|L)*
 
 "break"			{ updateLoc(); return(BREAK); }
 "case"			{ updateLoc(); return(CASE); }
-"char"			{ yylval.type_specifier = create_type_specifier(CHAR, line_no, col_no); updateLoc(); return(CHAR); }
 "const"			{ updateLoc(); return(CONST); }
 "continue"		{ updateLoc(); return(CONTINUE); }
 "default"		{ updateLoc(); return(DEFAULT); }
 "do"			{ updateLoc(); return(DO); }
-"double"		{ yylval.type_specifier = create_type_specifier(DOUBLE, line_no, col_no); updateLoc(); return(DOUBLE); }
-"else"			{ updateLoc(); return(ELSE); }
-"extern"		{ updateLoc(); return(EXTERN); }
-"float"			{ yylval.type_specifier = create_type_specifier(FLOAT, line_no, col_no); updateLoc(); return(FLOAT); }
-"for"			{ updateLoc(); return(FOR); }
-"if"			{ updateLoc(); return(IF); }
+"char"			{ yylval.type_specifier = create_type_specifier(CHAR, line_no, col_no); updateLoc(); return(CHAR); }
 "int"			{ yylval.type_specifier = create_type_specifier(INT, line_no, col_no); updateLoc(); return(INT); }
 "long"			{ yylval.type_specifier = create_type_specifier(LONG, line_no, col_no); updateLoc(); return(LONG); }
-"return"		{ updateLoc(); return(RETURN); }
+"float"			{ yylval.type_specifier = create_type_specifier(FLOAT, line_no, col_no); updateLoc(); return(FLOAT); }
+"double"		{ yylval.type_specifier = create_type_specifier(DOUBLE, line_no, col_no); updateLoc(); return(DOUBLE); }
 "short"			{ yylval.type_specifier = create_type_specifier(SHORT, line_no, col_no); updateLoc(); return(SHORT); }
 "signed"		{ yylval.type_specifier = create_type_specifier(SIGNED, line_no, col_no); updateLoc(); return(SIGNED); }
-"sizeof"		{ yylval.type_specifier = create_type_specifier(SIZEOF, line_no, col_no); updateLoc(); return(SIZEOF); }
+"sizeof"		{ yylval.terminal = create_terminal("sizeof", NULL, line_no, col_no); updateLoc(); return(SIZEOF); }
+"unsigned"		{ yylval.type_specifier = create_type_specifier(UNSIGNED, line_no, col_no); updateLoc(); return(UNSIGNED); }
+"void"			{ yylval.type_specifier = create_type_specifier(VOID, line_no, col_no); updateLoc(); return(VOID); }
+"else"			{ updateLoc(); return(ELSE); }
+"extern"		{ updateLoc(); return(EXTERN); }
+"for"			{ updateLoc(); return(FOR); }
+"if"			{ updateLoc(); return(IF); }
+"goto"			{ updateLoc(); return(GOTO); }
+"return"		{ updateLoc(); return(RETURN); }
 "static"		{ updateLoc(); return(STATIC); }
 "struct"		{ updateLoc(); return(STRUCT); }
 "switch"		{ updateLoc(); return(SWITCH); }
 "typedef"		{ updateLoc(); return(TYPEDEF); }
 "union"			{ updateLoc(); return(UNION); }
-"unsigned"		{ yylval.type_specifier = create_type_specifier(UNSIGNED, line_no, col_no); updateLoc(); return(UNSIGNED); }
-"void"			{ yylval.type_specifier = create_type_specifier(VOID, line_no, col_no); updateLoc(); return(VOID); }
 "while"			{ updateLoc(); return(WHILE); }
+"bool"			{ yylval.terminal = create_type_specifier(CHAR, line_no, col_no); updateLoc(); return(CHAR); }
 
 {Alpha}({Alpha}|{Digit})* { int type = check_type(); updateLoc(); return(type); }
 
 0[xX]{Hexa}+{IS}?	    { yylval.constant = create_constant("CONSTANT HEX", yytext, line_no, col_no); updateLoc(); return(CONSTANT); }
 0{Digit}+{IS}?          { yylval.constant = create_constant("CONSTANT INT", yytext, line_no, col_no); updateLoc(); return(CONSTANT); }
 {Digit}+{IS}?		{ yylval.constant = create_constant("CONSTANT INT", yytext, line_no, col_no); updateLoc(); return(CONSTANT); }			
-L?'(\\.|[^\\'])+'	{ updateLoc(); yylval.constant = create_constant("CONSTANT CHAR", yytext, line_no, prev_col_no); return(CONSTANT); }		
+'(\\.|[^\\'])+'	{ updateLoc(); yylval.constant = create_constant("CONSTANT CHAR", yytext, line_no, prev_col_no); return(CONSTANT); }		
 
 {Digit}+{Expo}{FS}? 	{ yylval.constant = create_constant("CONSTANT EXP", yytext, line_no, col_no); updateLoc(); return(CONSTANT); }		
 {Digit}*"."{Digit}+({Expo})?{FS}?	{ yylval.constant = create_constant("CONSTANT FLOAT", yytext, line_no, col_no); updateLoc(); return(CONSTANT); }
@@ -200,7 +201,6 @@ void updateLoc_wspace(){
     }
 }
 
-// Update the current column number and line number
 void updateLoc()
 {   
     if(!wspace){
@@ -258,7 +258,6 @@ int check_type(){
     yylval.identifier = id;
     return(IDENTIFIER);
 }
-
 
 /*
     reference: https://www.lysator.liu.se/c/ANSI-C-grammar-l.html

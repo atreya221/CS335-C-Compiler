@@ -4,10 +4,12 @@ CXX = g++
 LEX = flex
 YACC = bison -y
 
+# for file in tests/*.c; do echo $file; ./bin/codegen  $file; done
 #This target can keep changing based on final binary required
 #TARGET = scanner
 # TARGET = parser
-TARGET = 3ac
+# TARGET = 3ac
+TARGET = codegen
 
 #DIRECTORIES
 
@@ -35,6 +37,16 @@ INCFLAGS = $(addprefix -I, $(INCDIR))
 
 all: $(TARGET)
 
+.PHONY: codegen
+
+execute: linker
+	spim -file final.s
+	@rm final.s
+
+linker:
+	@cat *.s libraries/fileio.asm libraries/lib.asm libraries/math.asm libraries/string.asm > final.s
+	
+
 
 scanner: grammar patterns
 	@mkdir -p $(TARGETDIR)
@@ -48,9 +60,23 @@ symtab: grammar patterns
 	@mkdir -p $(TARGETDIR)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(INCFLAGS) $(BUILDDIR)/lex.yy.c $(BUILDDIR)/y.tab.c $(SRCDIR)/parser.cpp $(SRCDIR)/ast.cpp  $(SRCDIR)/symtab.cpp $(SRCDIR)/expression.cpp -o $(TARGETDIR)/symtab
 
+
+
 3ac: $(BUILDDIR)/symtab.o $(BUILDDIR)/expression.o $(BUILDDIR)/3ac.o
 	@mkdir -p $(TARGETDIR)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(INCFLAGS) $(BUILDDIR)/symtab.o $(BUILDDIR)/expression.o $(BUILDDIR)/3ac.o -o $(TARGETDIR)/3ac 
+
+codegen: $(BUILDDIR)/symtab.o $(BUILDDIR)/expression.o $(BUILDDIR)/3ac.o $(BUILDDIR)/codegen.o
+	@mkdir -p $(TARGETDIR)
+	@mkdir -p gen_files
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(INCFLAGS) $(BUILDDIR)/symtab.o $(BUILDDIR)/expression.o $(BUILDDIR)/3ac.o $(BUILDDIR)/codegen.o -o $(TARGETDIR)/codegen 
+	@for file in $(BUILDDIR)/*.o; do \
+		rm $$file; \
+	done
+
+$(BUILDDIR)/codegen.o: $(INCDIR)/code_generator.h $(SRCDIR)/code_generator.cpp
+	@mkdir -p $(BUILDDIR)
+	$(CXX) -c $(CXXFLAGS) $(LDFLAGS) $(INCFLAGS)  $(SRCDIR)/code_generator.cpp  -o $(BUILDDIR)/codegen.o
 
 $(BUILDDIR)/3ac.o: $(INCDIR)/3ac.h $(INCDIR)/statement.h $(SRCDIR)/3ac.cpp $(SRCDIR)/statement.cpp
 	@mkdir -p $(BUILDDIR)
@@ -65,11 +91,11 @@ $(BUILDDIR)/expression.o: $(INCDIR)/expression.h $(SRCDIR)/expression.cpp
 $(BUILDDIR)/symtab.o: patterns grammar $(INCDIR)/ast.h $(INCDIR)/symtab.h $(SRCDIR)/ast.cpp $(SRCDIR)/parser.cpp $(SRCDIR)/symtab.cpp
 	@mkdir -p $(BUILDDIR)
 	$(CXX) -c $(CXXFLAGS) $(LDFLAGS) $(INCFLAGS) $(BUILDDIR)/y.tab.c -o $(BUILDDIR)/grammar.o 
-	$(CXX) -c $(CXXFLAGS) $(LDFLAGS) $(INCFLAGS) $(BUILDDIR)/lex.yy.c -o $(BUILDDIR)/patterns.o 
+	$(CXX) -c $(CXXFLAGS) $(LDFLAGS) $(INCFLAGS) $(BUILDDIR)/lex.yy.c -o $(BUILDDIR)/pattern.o 
 	$(CXX) -c $(CXXFLAGS) $(LDFLAGS) $(INCFLAGS) $(SRCDIR)/ast.cpp -o $(BUILDDIR)/ast.o 
 	$(CXX) -c $(CXXFLAGS) $(LDFLAGS) $(INCFLAGS) $(SRCDIR)/parser.cpp -o $(BUILDDIR)/parser.o 
 	$(CXX) -c $(CXXFLAGS) $(LDFLAGS) $(INCFLAGS) $(SRCDIR)/symtab.cpp -o $(BUILDDIR)/symtab_.o 
-	$(LD) -Ur $(BUILDDIR)/grammar.o $(BUILDDIR)/patterns.o $(BUILDDIR)/ast.o $(BUILDDIR)/parser.o $(BUILDDIR)/symtab_.o -o $(BUILDDIR)/symtab.o
+	$(LD) -Ur $(BUILDDIR)/grammar.o $(BUILDDIR)/pattern.o $(BUILDDIR)/ast.o $(BUILDDIR)/parser.o $(BUILDDIR)/symtab_.o -o $(BUILDDIR)/symtab.o
 
 
 grammar:
@@ -90,4 +116,7 @@ plot:
 	@rm graph.dot y.tab.c y.output
 
 clean:
-	rm -rf $(BUILDDIR) $(TARGETDIR) *.dot *.output y.tab.c
+	rm -rf $(BUILDDIR) $(TARGETDIR) *.csv *.tac *.dot *.output y.tab.c gen_files *.s
+
+clean_output:
+	rm -rf *.csv *.tac *.dot *.s

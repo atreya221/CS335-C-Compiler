@@ -1,166 +1,215 @@
-#include<iostream>
-#include<string>
-#include<assert.h>
-#include<sstream>
-
 #include "ast.h"
 
-using namespace std;
+#include<assert.h>
+#include<string>
+#include<iostream>
+#include<sstream>
 
-static unsigned long long int node_id_count = 0;
+static unsigned long long int id_count = 0;
 
 unsigned long long int get_next_node_id() {
-	return node_id_count++;
+	return id_count++;
 }
 
 Node::Node() : id(get_next_node_id()) {};
 
-Node::Node(int line_no, int col_no): id(get_next_node_id()), line_no(line_no), col_no(col_no){};
+Node::Node(unsigned int _line_no, unsigned int _col_no ) : id(get_next_node_id()) , line_no(_line_no), col_no(_col_no) {};
 
 unsigned long long int Node::get_id() {
 	return id;
 }
 
-Terminal::Terminal(const char * string_name, const char * string_value) {
-	name = string(string_name);
-	if (string_value) {
-		value = string(string_value);
-	}
+Terminal::Terminal(const char * name_, const char * value_) {
+	name = std::string(name_);
+	if (value_) value = std::string(value_);
 }
 
-Terminal::Terminal(const char * string_name, const char * string_value, int line_no, int col_no): Node(line_no, col_no) {
-	name = string(string_name);
-	if (string_value)
-		value = string(string_value);
-}
-
-Non_Terminal::Non_Terminal(const char * string_name) {
-	name = string(string_name);
+Terminal::Terminal(const char * name_, const char * value_, unsigned int _line_no, unsigned int _col_no ) : Node(_line_no, _col_no){
+	name = std::string(name_);
+	if (value_) value = std::string(value_);
 }
 
 
-void Node::add_child (Node * child) {}
-void Node::add_children (Node * child1, Node * child2) {}
-void Node::add_children (Node * child1, Node * child2, Node * child3) {}
-void Node::add_children (Node * child1, Node * child2, Node * child3, Node * child4) {}
-
-void Non_Terminal::add_child (Node * child) {
-	if( child )	children.push_back(child);
+Non_Terminal::Non_Terminal(const char * name_) {
+	name = std::string(name_);
 }
 
-void Non_Terminal::add_children (Node * child1, Node * child2) {
-	if( child1 ) children.push_back(child1);
-	if( child2 ) children.push_back(child2);
+
+
+
+void Node::add_child (Node * node) {
+	assert(0);
 }
 
-void Non_Terminal::add_children (Node * child1, Node * child2, Node * child3) {
-	if( child1 ) children.push_back(child1);
-	if( child2 ) children.push_back(child2);
-	if( child3 ) children.push_back(child3);
+void Node::add_children (Node * node1, Node * node2) {
+	assert(0);
 }
 
-void Non_Terminal::add_children (Node * child1, Node * child2, Node * child3, Node * child4) {
-	if( child1 ) children.push_back(child1);
-	if( child2 ) children.push_back(child2);
-	if( child3 ) children.push_back(child3);
-	if( child4 ) children.push_back(child4);
+void Node::add_children (Node * node1, Node * node2, Node * node3) {
+	assert(0);
 }
 
-Node * create_terminal(const char* name, const char * value) {
-	Terminal * new_terminal_node = new Terminal(name,value);
-	return new_terminal_node;
-}
 
-Terminal * create_terminal(const char * name, const char * value, int line_no, int col_no){
-	Terminal * terminal = new Terminal(name, value, line_no, col_no);
-	return terminal;
-}
-
-Node * create_non_term(const char* name) {
-	Non_Terminal * new_node = new Non_Terminal(name);
-	return new_node;
-}
-
-Node * create_non_term(const char* name, Node* child1) {
-	Non_Terminal * new_node = new Non_Terminal(name);
-	new_node->add_child(child1);
-	if(new_node->children.empty() == false){
-		return new_node;
-	}
-	else {
-		delete new_node;
-		return NULL;
-	}
-}
-
-Node * create_non_term(const char* name, Node* child1, Node* child2) {
-	Non_Terminal * new_node = new Non_Terminal(name);
-	new_node->add_children(child1, child2);
-	if(new_node->children.empty() == false ){
-		return new_node;
-	}
-	else {
-		delete new_node;
-		return NULL;
-	}
-}
-
-Node * create_non_term(const char* name, Node* child1, Node* child2, Node* child3) {
-	Non_Terminal * new_node = new Non_Terminal(name);
-	new_node->add_children(child1, child2, child3);
-	if(new_node->children.empty() == false ){
-		return new_node;
-	}
-	else {
-		delete new_node;
-		return NULL;
-	}
-}
-
-Node * create_non_term(const char* name, Node* child1, Node* child2, Node* child3, Node* child4) {
-	Non_Terminal * new_node = new Non_Terminal(name);
-	new_node->add_children(child1, child2, child3, child4);
-
-	if(new_node->children.empty() == false){
-		return new_node;
-	}
-	else {
-		delete new_node;
-		return NULL;
-	}
+void Node::add_children (Node * node1, Node * node2, Node * node3, Node * node4) {
+	assert(0);
 }
 
 void Terminal:: dotify () {
-	if(is_written == 1){
-		is_written = 0;
-		stringstream ss;
-		ss << "\t" << id << " [label=\"" << name << "\"];\n";
+	if(is_printed){
+		is_printed = 0;
+		std::stringstream ss;
+		ss << "\t" << id << " [label=\"" << name << " : " << value << "\"];\n";
 		file_writer(ss.str());
 	}
 }
+
 void Non_Terminal:: dotify () {
-	if(is_written == 1){
-		is_written = 0;
-		stringstream ss;
+	if(is_printed){
+		is_printed = 0;
+		std::stringstream ss;
 		ss << "\t" << id << " [label=\"" << name << "\"];\n";
-		auto it = children.begin();
-		while(it != children.end()){
+		for (auto it = children.begin(); it != children.end(); it++) {
 			ss << "\t" << id << " -> " << (*it)->id << ";\n";
-			it++;
 		}
-
 		file_writer(ss.str());
 
-		it = children.begin();
-		while(it != children.end()){	
+		for(auto it = children.begin(); it != children.end(); it++){
 			(*it)->dotify();
-			it++;
 		}
 	}
+}
+
+void Non_Terminal::add_child (Node * node) {
+	if( node != NULL) {
+		children.push_back(node);
+	}
+}
+
+
+void Non_Terminal::add_children (Node * node1, Node * node2) {
+	if( node1 != NULL) {
+		children.push_back(node1);
+	}
+	if( node2 != NULL) {
+		children.push_back(node2);
+	}
+}
+
+void Non_Terminal::add_children (Node * node1, Node * node2, Node * node3) {
+	if( node1 != NULL) {
+		children.push_back(node1);
+	}
+	if( node2 != NULL) {
+		children.push_back(node2);
+	}
+	if( node3 != NULL) {
+		children.push_back(node3);
+	}
+}
+
+void Non_Terminal::add_children (Node * node1, Node * node2, Node * node3, Node * node4) {
+	if( node1 != NULL) {
+		children.push_back(node1);
+	}
+	if( node2 != NULL) {
+		children.push_back(node2);
+	}
+	if( node3 != NULL) {
+		children.push_back(node3);
+	}
+	if( node4 != NULL) {
+		children.push_back(node4);
+	}
+}
+
+Node * create_terminal(const char* name, const char * value) {
+	Terminal * terminal_node = new Terminal(name,value);
+	return terminal_node;
+}
+
+Terminal * create_terminal(const char * name, const char * value, unsigned int line_no, unsigned int col_no){
+	Terminal * terminal_node = new Terminal(name,value,line_no,col_no);
+	return terminal_node;
+}
+
+
+Node * create_non_term(const char* name) {
+	Non_Terminal * node = new Non_Terminal(name);
+	return node;
+}
+
+Node * create_non_term(const char* name, Node* node1, Node* node2, Node* node3, Node* node4, Node* node5, Node* node6, Node* node7) {
+	Non_Terminal * node = new Non_Terminal(name);
+	node->add_children(node1, node2, node3, node4);
+	node->add_children(node5, node6, node7);
+	if( node->children.empty() ) {
+		delete node;
+		return NULL;
+	}
+	return node;
+}
+
+Node * create_non_term(const char* name, Node* node1, Node* node2, Node* node3, Node* node4, Node* node5, Node* node6) {
+	Non_Terminal * node = new Non_Terminal(name);
+	node->add_children(node1, node2, node3, node4);
+	node->add_children(node5, node6);
+	if( node->children.empty() ) {
+		delete node;
+		return NULL;
+	}
+	return node;
+}
+
+Node * create_non_term(const char* name, Node* node1, Node* node2, Node* node3, Node* node4, Node* node5) {
+	Non_Terminal * node = new Non_Terminal(name);
+	node->add_children(node1, node2, node3);
+	node->add_children(node4, node5);
+	if( node->children.empty() ) {
+		delete node;
+		return NULL;
+	}
+	return node;
 }
 
 
 
 
+Node * create_non_term(const char* name, Node* node1, Node* node2, Node* node3, Node* node4) {
+	Non_Terminal * node = new Non_Terminal(name);
+	node->add_children(node1, node2, node3, node4);
+	if( node->children.empty() ) {
+		delete node;
+		return NULL;
+	}
+	return node;
+}
 
+Node * create_non_term(const char* name, Node* node1, Node* node2, Node* node3) {
+	Non_Terminal * node = new Non_Terminal(name);
+	node->add_children(node1, node2, node3);
+	if( node->children.empty() ) {
+		delete node;
+		return NULL;
+	}
+	return node;
+}
 
+Node * create_non_term(const char* name, Node* node1, Node* node2) {
+	Non_Terminal * node = new Non_Terminal(name);
+	node->add_children(node1, node2);
+	if( node->children.empty() ) {
+		delete node;
+		return NULL;
+	}
+	return node;
+}
+
+Node * create_non_term(const char* name, Node* node1) {
+	Non_Terminal * node = new Non_Terminal(name);
+	node->add_child(node1);
+	if( node->children.empty() ) {
+		delete node;
+		return NULL;
+	}
+	return node;
+}

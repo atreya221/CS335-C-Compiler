@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     if (argc == 2 && (cfile = fopen(argv[1], "r")))
         yyin = cfile;
 
-    printf("Line#     Column#   Token               Lexeme                       "
+    printf("Line#     col_no#   Token               Lexeme                       "
             " \n");
 
 
@@ -67,9 +67,6 @@ void token_to_string(int token_no, char *str)
         break;
     case EXTERN:
         sprintf(str, "EXTERN");
-        break;
-    case FILE_TYPE:
-        sprintf(str, "FILE");
         break;
     case FLOAT:
         sprintf(str, "FLOAT");

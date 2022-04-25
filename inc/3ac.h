@@ -2,32 +2,32 @@
 #define __3AC_H__
 
 #include <iostream>
-#include <string>
 #include <sstream>
 #include <deque>
 #include <map>
+#include <string>
 #include <unordered_set>
 
-#include "symtab.h"
 #include "ast.h"
+#include "symtab.h"
+#include "code_generator.h"
 
 using namespace std;
 
+extern unsigned long long instructions;
 unsigned long long get_next_instr();
 extern stringstream tac_ss;
 
 
-extern unsigned long long instr;
-extern unsigned long long temps;
+extern unsigned long long temporaries;
 extern unsigned long long strings;
-
 
 typedef enum ADD_TYPE_ {
 	ID3 = 1,
 	CON = 2,
 	TEMP = 3,
 	MEM = 4
-} ADD_TYPE;
+}ADD_TYPE;
 
 
 class ThreeAC;
@@ -37,44 +37,46 @@ class ThreeAC;
 
 class Address {
 public:
-	string string_name;
+	string name;
 	int size;
+//	long value;
 	ADD_TYPE type;
 	ThreeAC * ta_instr;
 	unsigned int table_id;
-	Address( long val, ADD_TYPE type);
-	Address( string string_name, ADD_TYPE type);
+	Address( string name, ADD_TYPE type);
+	Address( long value, ADD_TYPE type);
+	
 };
 
 typedef struct _addresses {
-	Address * addr; 
-	struct _addresses * next_addr;
-	bool present;
+	Address * addr;
+	bool alive;
+	struct _addresses * next_use;
 } ADDRESS;
 
 class TacInfo {
-	private: 
-		bool present; 
-		ADDRESS * next_addr; 
-		SymTabEntry * sym; 
+	private:
+		bool alive;
+		ADDRESS * next_use;
+		SymTabEntry * symbol;
 	public:
 		TacInfo();
 		TacInfo(SymTabEntry * );
 		TacInfo( bool );
-	friend TacInfo * create_tac_info(SymTabEntry * sym);
+	friend TacInfo * create_tac_info(SymTabEntry * symbol);
 	friend void reset_tac_info_table();
 	friend void create_next_use_info();
 };
 
-TacInfo * create_tac_info(SymTabEntry * sym);
-TacInfo * create_tac_info(SymTabEntry * sym, bool live, ThreeAC * next_addr);
+TacInfo * create_tac_info(SymTabEntry * symbol);
+TacInfo * create_tac_info(SymTabEntry * symbol, bool live, ThreeAC * next_use);
 
 extern map< unsigned int, TacInfo > tac_info_table;
 map< unsigned int, TacInfo >::iterator get_entry_from_table( Address * );
 
 ostream& operator<<(ostream& os, const Address& a);
 
-extern unsigned long long instr;
+extern unsigned long long instructions;
 Address * new_temp();
 Address * new_mem( Type & t );
 
@@ -90,36 +92,54 @@ Address * new_3const(T val, CONST_TYPE con ) {
 }
 
 
-Address * new_3id(SymTabEntry * sym);
+Address * new_3id(SymTabEntry * symbol);
 Address * new_3string( StringLiteral * sl );
 
 class ThreeAC {
 public:
-	unsigned int instr_no;
+	unsigned int instr;
 	unsigned int bb_no;
 	bool dead;
 	ThreeAC();
 	ThreeAC( bool no_add );
-	virtual ~ThreeAC();
 	virtual string print() = 0;
+	virtual ~ThreeAC();
 
 };
 
-extern vector< ThreeAC*> ta_code;
+extern vector< ThreeAC * > ta_code;
 
 
 class Quad : public ThreeAC {
 public:
+
+	ADDRESS result, arg1, arg2;
+
+//	Address * result;
 	string operation;
-	ADDRESS result, argument1, argument2;
-	Quad ( Address * result, string op, Address * argument1, Address * argument2 );
-	~Quad();
+//	Address * arg1;
+//	Address * arg2;
+//	Quad * next;
+
+
+	Quad ( Address * result, string operation, Address * arg1, Address * arg2 );
 	string print();
+	~Quad();
 
 };
 
 
 ostream& operator<<(ostream& os, const ADDRESS & a);
+
+#define MEM_EMIT(a,b) \
+	if ( (a)->res->type == MEM ) { \
+		(b) = new_temp(); \
+		emit((b),"()",(a)->res,nullptr); \
+	} else if ( (a)->res->type == ID3 ) { \
+		(b) = (a)->res; \
+	} else { \
+		(b) = (a)->res; \
+	}
 
 #define BACKPATCH(a) { \
 	Label * _lab; 			\
@@ -130,7 +150,7 @@ ostream& operator<<(ostream& os, const ADDRESS & a);
 	backpatch((a)->truelist,_lab); \
 }
 
-#define SAVEREGS( E, t1, t2 ) { \
+#define SAVE_REGS( E, t1, t2 ) { \
     if ( (t1)->type == TEMP || (t1)->type == MEM ) { \
         (E)->res = (t1); \
 	(E)->res->type = TEMP; \
@@ -142,61 +162,52 @@ ostream& operator<<(ostream& os, const ADDRESS & a);
     } \
 }
 
-#define MEMEMIT(a,b) { \
-	if ( (a)->res->type == MEM ) { \
-		(b) = new_temp(); \
-		emit((b),"()",(a)->res, nullptr); \
-	} else if ( (a)->res->type == ID3 ) { \
-		(b) = (a)->res; \
-	} else { \
-		(b) = (a)->res; \
-	} \
-}
-
-
-unsigned long long emit(Address * result, string op, Address * argument1, Address * argument2);
-
 ostream& operator<<(ostream& os, const Quad& q);
 
+unsigned long long emit(  Address * result, string operation, Address * arg1, Address * arg2 );
+
+
+class GoTo;
 
 class Label : public ThreeAC {
 	public:
-		string string_name;
-		unsigned long long instr_id;
-		unsigned int ref_cnt;
-        
+		string name;
+		unsigned long long instruction_id;
+		unsigned int reference_count;
 		Label();
-		~Label();
 		string print();
+		~Label();
+	//	void update_targets( Label * label );
 };
 
-Label* create_new_label();
 extern unsigned long long labels;
+Label * create_new_label();
  
 class GoTo : public ThreeAC {
 		Label * label;
 	public : 
 		ADDRESS res;
-		bool cond;
+		bool condition;
 		GoTo();
-		~GoTo();
 		string print();
-		void set_res(Address *res);
+		~GoTo();
+		void set_res( Address * res );
+	friend ostream& operator<<(ostream& os, const GoTo& g);
+	friend GoTo * create_new_goto_cond( Address * res, bool condition );
+	friend void optimise_pass1();
+	friend void backpatch(vector<GoTo*> & go_v, Label* label);
+	friend void backpatch(GoTo* _goto, Label* label);
+	friend GoTo * create_new_goto( Label * label);
+	friend void process_goto( GoTo * g );
+//	friend void Label::update_targets( Label * label );
 
-        friend ostream& operator<<(ostream& os, const GoTo& _goto);
-        friend GoTo * create_new_goto_cond(Address *res, bool condition);
-        friend void optimise_pass1();
-        friend void backpatch(vector<GoTo*> &go_v, Label* label);
-        friend void backpatch(GoTo* _goto, Label* label);
-        friend GoTo* create_new_goto(Label * label);
-        friend void process_goto(GoTo* _goto);
 };
 
 
 
 GoTo * create_new_goto();
 GoTo * create_new_goto(Label * label);
-GoTo * create_new_goto_cond(Address * addr, bool condition);
+GoTo * create_new_goto_cond(Address * res, bool condition);
 
 
 ostream& operator<<(ostream& os, const Label& l);
@@ -207,59 +218,63 @@ class Arg : public ThreeAC {
 	public:
 		ADDRESS arg;
 		int num;
-		Arg( Address * addr, int cnt );
-		string print();		
+		
+		Arg( Address * _addr, int count );
+		string print();
+		
 };
 
 ostream& operator<<(ostream& os, const Arg& a );
-Arg * create_new_arg( Address * addr , int cnt );
+Arg * create_new_arg( Address * addr , int count );
 
 class Call : public ThreeAC {
 	public:
-		ADDRESS return_value;
+		ADDRESS retval;
 		string function_name;
 		
-		Call( Address * addr, string str_name );
+		Call( Address * _addr, string f_name );
 		string print();
 		
 };
 
 ostream& operator<<(ostream& os, const Call& c);
-Call * create_new_call( Address * addr , string str_name );
+Call * create_new_call( Address * addr , string f_name );
 
 class Return : public ThreeAC {
 	public : 
+		ADDRESS retval;
+		Return( Address * _retval );
 		string print();
-		ADDRESS return_value;
-		Return( Address * _return_value );
 		~Return();
-	friend Return * create_new_return( Address * return_value );
+	friend Return * create_new_return( Address * retval );
 };
 
-Return * create_new_return(Address * return_value);
+Return * create_new_return(Address * retval);
 
 ostream& operator<<(ostream& os, const Return& r);
 
+
 class SaveLive : public ThreeAC {
 	public:
-		bool saved;
+		bool save_temps;
 		SaveLive();
 		string print();
 };
 
-ostream& operator<<(ostream& os, const SaveLive& s);
-SaveLive * create_new_save_live(bool saved);
 SaveLive * create_new_save_live();
+SaveLive * create_new_save_live(bool save_temps);
+ostream& operator<<(ostream& os, const SaveLive& s);
 
-extern unordered_set<string> vars;
-void backpatch(GoTo* _goto, Label* label);
+extern unordered_set<string> var_rep;
 void backpatch( vector <GoTo * > & go_v, Label * label );
+void backpatch(GoTo* _goto, Label* label);
 
+// Append v2 at the end of vector 1
 void append ( vector <GoTo *> & v1, vector <GoTo *> & v2);
 
-void create_basic_blocks();
-void reset_tac_info_table();
-void create_next_use_info();
-void optimise_pass1();
 void dump_and_reset_3ac(); 
+void optimise_pass1();
+void create_basic_blocks();
+void create_next_use_info();
+void reset_tac_info_table();
 #endif

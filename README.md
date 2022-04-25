@@ -109,6 +109,23 @@ dot -Tpng <filename>.dot -o <filename>.png
 5 sample test cases have been provided in the tests directory.<br>
 
 
+## Milestone - 6 (Final)
+
+Finally, we created the c compiler for MIPS. For building the compiler follow below procedure:
+
+1) Download the project on your ubuntu system.
+2) bison (GNU Bison) 3.5.1 and flex 2.6.4 must be on your system.
+3) In the main folder, use the following command.
+```
+make
+```
+This will generate **codegen** named file in **bin** directory.
+
+Now just use the following command and all the files will be generated in the main folder.
+```
+./bin/codegen ./tests/<filename>.c
+```
+
 
 ## References
 For Grammar: https://www.lysator.liu.se/c/ANSI-C-grammar-y.html  

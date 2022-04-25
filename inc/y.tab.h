@@ -49,10 +49,10 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    IDENTIFIER = 258,
-    CONSTANT = 259,
-    STRING_LITERAL = 260,
-    SIZEOF = 261,
+    SIZEOF = 258,
+    IDENTIFIER = 259,
+    CONSTANT = 260,
+    STRING_LITERAL = 261,
     INC_OP = 262,
     DEC_OP = 263,
     PTR_OP = 264,
@@ -83,8 +83,8 @@ extern int yydebug;
     UNSIGNED = 289,
     CHAR = 290,
     SHORT = 291,
-    INT = 292,
-    LONG = 293,
+    LONG = 292,
+    INT = 293,
     FLOAT = 294,
     DOUBLE = 295,
     VOID = 296,
@@ -110,10 +110,10 @@ extern int yydebug;
   };
 #endif
 /* Tokens.  */
-#define IDENTIFIER 258
-#define CONSTANT 259
-#define STRING_LITERAL 260
-#define SIZEOF 261
+#define SIZEOF 258
+#define IDENTIFIER 259
+#define CONSTANT 260
+#define STRING_LITERAL 261
 #define INC_OP 262
 #define DEC_OP 263
 #define PTR_OP 264
@@ -144,8 +144,8 @@ extern int yydebug;
 #define UNSIGNED 289
 #define CHAR 290
 #define SHORT 291
-#define INT 292
-#define LONG 293
+#define LONG 292
+#define INT 293
 #define FLOAT 294
 #define DOUBLE 295
 #define VOID 296
@@ -173,67 +173,57 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 16 "src/grammar.y"
+#line 20 "src/grammar.y"
 
 	Node * node;
 	Terminal * terminal;
 	int value;
-
+	DeclarationSpecifiers * declaration_specifiers;
+	Declaration * declaration;
 	DeclarationList * declaration_list;
-		Declaration * declaration;
-	
-			DeclarationSpecifiers * declaration_specifiers;
-				TypeSpecifier * type_specifier;
-					EnumeratorList * enumerator_list;
-						Enumerator * enumerator;
-					StructDeclarationList * struct_declaration_list;
-						StructDeclaration * struct_declaration;
-						SpecifierQualifierList * specifier_qualifier_list;
-
-
-			DeclaratorList * init_declarator_list;
-				Declarator * declarator;
-					DirectDeclarator * direct_declarator;
-						Identifier * identifier;
-						ParameterTypeList * parameter_type_list;
-							ParameterDeclaration * parameter_declaration;
-								AbstractDeclarator * abstract_declarator;
-								DirectAbstractDeclarator * direct_abstract_declarator;
-									Constant * constant;
-
-
-					Pointer * pointer;
-						TypeQualifierList * type_qualifier_list;
-	
+	Declarator * declarator;
+	DeclaratorList * init_declarator_list;
+	Pointer * pointer;
+	DirectDeclarator * direct_declarator;
+	Identifier * identifier;
+	TypeQualifierList * type_qualifier_list;
 	FunctionDefinition * function_definition;
-
-	Expression * expression;
-		PrimaryExpression * primary_expression;
-		AssignmentExpression * assignment_expression;
-		Logical_andExpression * logical_and_expression;
-		Logical_orExpression * logical_or_expression;
-		UnaryExpression * unary_expression;
-		CastExpression * cast_expression;
-		ShiftExpression * shift_expression; 
-		InclusiveorExpression * inclusive_or_expression; 
-		ExclusiveorExpression * exclusive_or_expression;
-		RelationalExpression * relational_expression;
-		MultiplicativeExpression * multiplicative_expression;
-		AdditiveExpression * additive_expression;
-		ArgumentExprList * argument_expression_list;
-		ConditionalExpression * conditional_expression;
-		AndExpression * and_expression;
-		EqualityExpression * equality_expression;  
-		PostfixExpression * postfix_expression;
-		StringLiteral * string_literal;
-
+	TypeSpecifier * type_specifier;
+	Enumerator * enumerator;
+	EnumeratorList * enumerator_list;
+	StructDeclarationList * struct_declaration_list;
+	StructDeclaration * struct_declaration;
+	SpecifierQualifierList * specifier_qualifier_list;
+	ParameterTypeList * parameter_type_list;
+	ParameterDeclaration * parameter_declaration;
+	DirectAbstractDeclarator * direct_abstract_declarator;
+	AbstractDeclarator * abstract_declarator;
+	Constant *constant;
+	StringLiteral *string_literal;
+	TopLevelExpression* top_level_expression;
+	AssignmentExpression* assignment_expression;
+	ArgumentExprList* argument_expression_list;
+	PostfixExpression* postfix_expression;
+	UnaryExpression* unary_expression;
+	CastExpression* cast_expression;
+	MultiplicativeExpression* multiplicative_expression;
+	AdditiveExpression* additive_expression;
+	ShiftExpression* shift_expression;
+	RelationalExpression* relational_expression;
+	EqualityExpression* equality_expression;
+	AndExpression* and_expression;
+	ExclusiveorExpression* exclusive_or_expression;
+	InclusiveorExpression* inclusive_or_expression;
+	Logical_andExpression* logical_and_expression;
+	Logical_orExpression* logical_or_expression;
+	ConditionalExpression* conditional_expression;
+	Expression* expression;
 	TypeName * type_name;
-	Label * label;
-	GoTo * _goto;
+	Label * label; 
+	GoTo  * _goto;
 	Statement * statement;
 
-
-#line 237 "y.tab.h"
+#line 227 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
