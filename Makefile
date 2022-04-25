@@ -40,11 +40,11 @@ all: $(TARGET)
 .PHONY: codegen
 
 execute: linker
-	spim -file final.s
-	@rm final.s
+	spim -file finalasm.s
+	@rm finalasm.s
 
 linker:
-	@cat *.s libraries/fileio.asm libraries/lib.asm libraries/math.asm libraries/string.asm > final.s
+	@cat *.s libraries/fileio.asm libraries/lib.asm libraries/math.asm libraries/string.asm > finalasm.s
 	
 
 
